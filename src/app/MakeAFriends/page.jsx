@@ -9,7 +9,7 @@ const Chatbot = () => {
   const [language, setLanguage] = useState("hi-IN");
   const [jokeMode, setJokeMode] = useState(false);
 
-  const apiKey = process.env.NEXT_PUBLIC_API_KEY; 
+  const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 
   const startListening = useCallback(() => {
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
@@ -78,7 +78,37 @@ const Chatbot = () => {
   return (
     <>
       {/* 🏆 SEO Optimized Metadata */}
-      <title>sdff</title>
+      
+        <title>हिंदी वॉयस AI चैटबॉट - बोलकर उत्तर पाएं</title>
+        <meta
+          name="description"
+          content="अपने सवालों के जवाब हिंदी में सुनें! AI वॉयस चैटबॉट से तुरंत उत्तर प्राप्त करें।"
+        />
+        <meta name="keywords" content="AI चैटबॉट, हिंदी वॉयस असिस्टेंट, AI उत्तर, GPT चैट, शायरी मोड" />
+        <meta property="og:title" content="हिंदी वॉयस AI चैटबॉट - बोलकर उत्तर पाएं" />
+        <meta
+          property="og:description"
+          content="अपने सवालों के जवाब हिंदी में सुनें! AI वॉयस चैटबॉट से तुरंत उत्तर प्राप्त करें।"
+        />
+        <meta property="og:image" content="/chatbot-thumbnail.png" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="हिंदी वॉयस AI चैटबॉट" />
+        <meta name="twitter:image" content="/chatbot-thumbnail.png" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "हिंदी वॉयस AI चैटबॉट",
+              description:
+                "अपने सवालों के जवाब हिंदी में सुनें! AI वॉयस चैटबॉट से तुरंत उत्तर प्राप्त करें।",
+              applicationCategory: "AI Chatbot",
+              operatingSystem: "Web",
+            }),
+          }}
+        />
       
 
       <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6">
