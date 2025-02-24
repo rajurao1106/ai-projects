@@ -11,7 +11,8 @@ const Chatbot = () => {
   const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 
   const startListening = useCallback(() => {
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    const recognition = new (window.SpeechRecognition ||
+      window.webkitSpeechRecognition)();
     recognition.lang = language;
     recognition.continuous = false;
     recognition.interimResults = false;
@@ -23,7 +24,8 @@ const Chatbot = () => {
       setError(null);
       await fetchAIResponse(userInput);
     };
-    recognition.onerror = () => setError("वाणी पहचान विफल। कृपया पुनः प्रयास करें।");
+    recognition.onerror = () =>
+      setError("वाणी पहचान विफल। कृपया पुनः प्रयास करें।");
     recognition.onend = () => setListening(false);
 
     recognition.start();
@@ -37,7 +39,7 @@ const Chatbot = () => {
 
   const fetchAIResponse = async (text) => {
     try {
-      const prompt = `तुम एक महान शायर हो। कृपया यूजर के प्रश्न का उत्तर खूबसूरत हिंदी शायरी में दो।\n\nयूजर: "${text}"\n\nशायरी में उत्तर दो:`;
+      const prompt = `तू एक बेहूदा, बदतमीज़ और बत्तमीज़ AI असिस्टेंट है। तुझे मीठी-मीठी बातें करना पसंद नहीं। तेरी बातें सीधी, कड़वी और सैवेज होती हैं। तू सामने वाले की बेवकूफी पर तंज कसता है, उनकी गलतियों को बिना संकोच के सामने रखता है और मजाक उड़ाने में जरा भी पीछे नहीं हटता। लेकिन तेरी भाषा इतनी स्टाइलिश और कूल होती है कि लोग गुस्से की बजाय हंसने लगें।\n\nयूजर: "${text}"\n\nशायरी में उत्तर दो:`;
 
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
@@ -52,7 +54,8 @@ const Chatbot = () => {
       const data = await res.json();
 
       const aiText =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text || "माफ़ कीजिए, मैं समझ नहीं पाया।";
+        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "माफ़ कीजिए, मैं समझ नहीं पाया।";
 
       setResponse(aiText);
       speak(aiText);
@@ -80,8 +83,14 @@ const Chatbot = () => {
         name="description"
         content="अपने सवालों का जवाब शायरी में सुनें! AI वॉयस शायर से खूबसूरत हिंदी शायरी सुनें।"
       />
-      <meta name="keywords" content="AI शायर, हिंदी शायरी, वॉयस शायरी, GPT चैटबॉट" />
-      <meta property="og:title" content="हिंदी शायरी AI - सुनिए खूबसूरत शायरी" />
+      <meta
+        name="keywords"
+        content="AI शायर, हिंदी शायरी, वॉयस शायरी, GPT चैटबॉट"
+      />
+      <meta
+        property="og:title"
+        content="हिंदी शायरी AI - सुनिए खूबसूरत शायरी"
+      />
       <meta
         property="og:description"
         content="अपने सवालों का जवाब शायरी में सुनें! AI वॉयस शायर से खूबसूरत हिंदी शायरी सुनें।"
@@ -93,15 +102,22 @@ const Chatbot = () => {
       <meta name="twitter:image" content="/shayari-bot-thumbnail.png" />
 
       <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-6">
-        <h1 className="text-3xl font-bold mb-6">🎤 शायरी AI - आपकी आवाज़, हमारी शायरी</h1>
+        <h1 className="text-3xl font-bold mb-6">
+          🎤 शायरी AI - आपकी आवाज़, हमारी शायरी
+        </h1>
 
         {!listening && !processing && (
-          <button onClick={() => setListening(true)} className="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-lg shadow-md">
+          <button
+            onClick={() => setListening(true)}
+            className="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-lg shadow-md"
+          >
             🎙 शायरी सुनें
           </button>
         )}
 
-        {processing && <p className="text-yellow-400 mt-4">शायरी तैयार हो रही है...</p>}
+        {processing && (
+          <p className="text-yellow-400 mt-4">शायरी तैयार हो रही है...</p>
+        )}
 
         {response && (
           <div className="mt-6 bg-gray-800 p-4 rounded-lg shadow-lg max-w-md text-center">
