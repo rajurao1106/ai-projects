@@ -1,34 +1,27 @@
 import { NextResponse } from "next/server";
-import mongoose from "mongoose";
-import Message from "@/models/Message";
+import { connectDB } from "@/lib/mongodb";
+import { Message } from "@/models/Message";
 
-const MONGO_URI = "mongodb+srv://rajurao1107:raoraju1337@cluster0.zjucb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-
-if (!MONGO_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
-}
-
-mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
+// GET API - Fetch all messages
 export async function GET() {
   try {
-    const messages = await Message.find().sort({ timestamp: -1 });
-    return NextResponse.json(messages);
+    await connectDB();
+    const messages = await Message.find().sort({ timestamp: -1 }); // Sort by latest
+    return NextResponse.json({ success: true, messages }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch messages" }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Failed to fetch messages" }, { status: 500 });
   }
 }
 
+// POST API - Save new message
 export async function POST(req) {
   try {
-    const { message } = await req.json();
-    const newMessage = new Message({ text: message.text, user: message.user, timestamp: Date.now() });
+    const { user, text } = await req.json();
+    await connectDB();
+    const newMessage = new Message({ user, text });
     await newMessage.save();
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, message: newMessage }, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to save message" }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Failed to save message" }, { status: 500 });
   }
 }
