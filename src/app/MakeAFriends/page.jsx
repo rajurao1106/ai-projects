@@ -1,4 +1,5 @@
 "use client"
+
 import React, { useState, useEffect, useCallback } from "react";
 
 const DB_NAME = "AI_Friend_DB";
@@ -61,7 +62,7 @@ const AIChat = () => {
       setError(null);
       await fetchAIResponse(userInput);
     };
-    recognition.onerror = () => setError("Speech recognition failed.");
+    recognition.onerror = () => setError("स्पीच रिकग्निशन विफल हुआ।");
     recognition.onend = () => setListening(false);
 
     recognition.start();
@@ -69,26 +70,28 @@ const AIChat = () => {
 
   const fetchAIResponse = async (text) => {
     try {
+      const prompt = `तुम एक सहायक AI हो। हमेशा हिंदी में उत्तर दो। उपयोगकर्ता ने कहा: "${text}"`;
+      
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents: [{ parts: [{ text }] }] }),
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
         }
       );
 
-      if (!res.ok) throw new Error("AI response failed.");
+      if (!res.ok) throw new Error("AI से उत्तर प्राप्त करने में समस्या हुई।");
       const data = await res.json();
       const aiText =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't understand.";
+        data?.candidates?.[0]?.content?.parts?.[0]?.text || "मुझे समझ नहीं आया।";
 
       setResponse(aiText);
       speak(aiText);
       saveToIndexedDB({ user: "AI", text: aiText });
       setMessages((prev) => [...prev, { user: "AI", text: aiText }]);
     } catch (error) {
-      setError("Error fetching AI response.");
+      setError("AI से उत्तर प्राप्त करने में त्रुटि हुई।");
     } finally {
       setProcessing(false);
     }
@@ -106,7 +109,7 @@ const AIChat = () => {
       <button onClick={startListening} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg shadow-md">
         🎤 Speak
       </button>
-      {processing && <p className="text-yellow-400 mt-4">Processing AI response...</p>}
+      {processing && <p className="text-yellow-400 mt-4">AI प्रतिक्रिया की प्रक्रिया हो रही है...</p>}
       {response && (
         <div className="mt-6 bg-gray-800 p-4 rounded-lg shadow-lg max-w-md text-center">
           <h2 className="text-lg font-semibold">🤖 AI:</h2>
