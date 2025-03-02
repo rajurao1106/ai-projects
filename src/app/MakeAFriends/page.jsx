@@ -1,6 +1,6 @@
-"use client"
-
+"use client";
 import React, { useState, useEffect, useCallback } from "react";
+import axios from "axios";
 
 const DB_NAME = "AI_Friend_DB";
 const STORE_NAME = "conversations";
@@ -28,14 +28,22 @@ const saveToIndexedDB = async (message) => {
   store.add({ message, timestamp: Date.now() });
 };
 
+const saveToMongoDB = async (message) => {
+  try {
+    await axios.post("/api/messages", { message });
+  } catch (error) {
+    console.error("MongoDB Save Error:", error);
+  }
+};
+
 const getAllMessages = async () => {
-  const db = await openDB();
-  return new Promise((resolve) => {
-    const tx = db.transaction(STORE_NAME, "readonly");
-    const store = tx.objectStore(STORE_NAME);
-    const request = store.getAll();
-    request.onsuccess = () => resolve(request.result);
-  });
+  try {
+    const { data } = await axios.get("/api/messages");
+    return data;
+  } catch (error) {
+    console.error("MongoDB Fetch Error:", error);
+    return [];
+  }
 };
 
 const AIChat = () => {
@@ -89,6 +97,7 @@ const AIChat = () => {
       setResponse(aiText);
       speak(aiText);
       saveToIndexedDB({ user: "AI", text: aiText });
+      saveToMongoDB({ user: "AI", text: aiText });
       setMessages((prev) => [...prev, { user: "AI", text: aiText }]);
     } catch (error) {
       setError("AI से उत्तर प्राप्त करने में त्रुटि हुई।");
