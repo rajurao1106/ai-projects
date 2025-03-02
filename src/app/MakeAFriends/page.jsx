@@ -1,9 +1,10 @@
+"use client"
 import React, { useState, useEffect, useCallback } from "react";
 
 const DB_NAME = "AI_Friend_DB";
 const STORE_NAME = "conversations";
 const DB_VERSION = 1;
-const apiKey = import.meta.env.VITE_API_KEY;
+const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 
 const openDB = () => {
   return new Promise((resolve, reject) => {
