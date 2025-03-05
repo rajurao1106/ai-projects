@@ -121,7 +121,7 @@ const AIChat = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center p-6">
-      <h1 className="text-3xl font-bold mb-6">🤖 AI Friend</h1>
+      <h1 className="text-3xl font-bold mb-6">🤖 AI Friends</h1>
       <button
         onClick={startListening}
         className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg shadow-md"
