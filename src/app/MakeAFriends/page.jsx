@@ -122,7 +122,7 @@ const AIChat = () => {
 
         {/* Interaction Area */}
         <div className="flex z-0 flex-col items-center gap-6 w-full max-w-lg">
-          <AnimatePresence>
+          <AnimatePresence> 
             {!listening && !processing && (
               <motion.button
                 onClick={startListening}
