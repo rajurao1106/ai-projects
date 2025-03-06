@@ -92,9 +92,10 @@ const AIChat = () => {
   };
 
   return (
-    <div className="pt-[30%] max-lg:pt-[90%] h-screen bg-gradient-to-br from-gray-950 to-gray-900 text-white flex flex-col items-center justify-center p-6">
-      {/* Header with subtle gradient */}
-      <Image src={english_teacher} className="absolute w-full -top-[70%] max-lg:top-0 max-lg:h-[100%] z-0"/>
+   <div className="flex w-full bg-red-500 justify-center items-center">
+    <div className=" w-[50%] h-[100vh] overflow-hidden flex justify-center items-center"><Image src={english_teacher} className=""/></div>
+    <div className="pt-[30%] max-lg:pt-[90%] bg-gradient-to-br from-gray-950 to-gray-900 text-white flex flex-col items-center justify-center p-6">
+      
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -141,7 +142,7 @@ const AIChat = () => {
         {processing && (
           <motion.div
             className="flex items-center gap-3 text-yellow-400"
-            animate={{ rotate: 360 }}
+            
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
           >
             <span className="text-2xl">⏳</span>
@@ -186,6 +187,7 @@ const AIChat = () => {
         Tip: Speak clearly for the best experience!
       </p>
     </div>
+   </div>
   );
 };
 
