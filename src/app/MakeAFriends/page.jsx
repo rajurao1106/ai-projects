@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion"; // For smooth animations
+import { motion, AnimatePresence } from "framer-motion"; // Added AnimatePresence for exit animations
 
 const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 
@@ -10,6 +10,9 @@ const AIChat = () => {
   const [response, setResponse] = useState("");
   const [error, setError] = useState(null);
   const [recognition, setRecognition] = useState(null);
+
+  // UI State for improved UX
+  const [isMicHovered, setIsMicHovered] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -22,7 +25,7 @@ const AIChat = () => {
         recog.interimResults = false;
         setRecognition(recog);
       } else {
-        setError("❌ Speech recognition not supported in this browser.");
+        setError("❌ Speech recognition is not supported in this browser.");
       }
     }
   }, []);
@@ -38,12 +41,10 @@ const AIChat = () => {
       await fetchAIResponse(userInput);
     };
     recognition.onerror = () => {
-      setError("⚠️ Speech recognition failed. Try again.");
+      setError("⚠️ Speech recognition failed. Please try again.");
       setListening(false);
     };
-    recognition.onend = () => {
-      setListening(false);
-    };
+    recognition.onend = () => setListening(false);
     recognition.start();
   }, [recognition]);
 
@@ -71,7 +72,7 @@ const AIChat = () => {
       setResponse(aiText);
       speak(aiText);
     } catch (error) {
-      setError("⚠️ Error getting response from AI.");
+      setError("⚠️ An error occurred while fetching the AI response.");
     } finally {
       setProcessing(false);
     }
@@ -80,73 +81,115 @@ const AIChat = () => {
   const speak = (text) => {
     const speech = new SpeechSynthesisUtterance(text);
     speech.lang = "en-US";
+    speech.volume = 1; // Ensure volume is audible
+    speech.rate = 1; // Normal speaking rate
+    speech.pitch = 1; // Normal pitch
 
-    speech.onend = () => {
-      startListening(); // Restart listening after AI speaks
-    };
-
+    speech.onend = () => startListening();
     window.speechSynthesis.speak(speech);
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center p-6">
-      <h1 className="text-3xl font-bold mb-6 text-blue-400">🤖 AI Friend</h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 to-gray-900 text-white flex flex-col items-center justify-center p-6">
+      {/* Header with subtle gradient */}
+      <motion.h1
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-4xl font-bold mb-8 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"
+      >
+        <span className="text-white">🤖</span>AI Friend
+      </motion.h1>
 
-      {/* 🎤 Speak Button with Animation */}
-      {!listening && !processing && (
-        <motion.button
-          onClick={startListening}
-          whileTap={{ scale: 0.9 }}
-          className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg transition-all flex items-center gap-2"
-        >
-          🎤 Speak
-        </motion.button>
-      )}
+      {/* Main Interaction Area */}
+      <div className="flex flex-col items-center gap-6 w-full max-w-md">
+        {/* Mic Button with Tooltip-like Effect */}
+        <AnimatePresence>
+          {!listening && !processing && (
+            <motion.button
+              onClick={startListening}
+              onMouseEnter={() => setIsMicHovered(true)}
+              onMouseLeave={() => setIsMicHovered(false)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="relative bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2 text-lg font-medium"
+            >
+              <span>🎤 Speak</span>
+              {isMicHovered && (
+                <motion.span
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: -30 }}
+                  className="absolute top-0 text-sm text-blue-300"
+                >
+                  Say something to start!
+                </motion.span>
+              )}
+            </motion.button>
+          )}
+        </AnimatePresence>
 
-      {/* Listening Animation */}
-      {listening && (
-        <motion.div
-          className="mt-4 flex items-center gap-2"
-          animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }}
-          transition={{ duration: 1, repeat: Infinity }}
-        >
-          🎙️ Listening...
-        </motion.div>
-      )}
+        {/* Listening State */}
+        {listening && (
+          <motion.div
+            className="flex items-center gap-3 text-blue-400"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <span className="text-2xl">🎙️</span>
+            <span className="text-lg font-medium">Listening to you...</span>
+          </motion.div>
+        )}
 
-      {/* Processing AI Response */}
-      {processing && (
-        <motion.p
-          className="text-yellow-400 mt-4"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 0.8, repeat: Infinity }}
-        >
-          ⏳ Processing AI response...
-        </motion.p>
-      )}
+        {/* Processing State */}
+        {processing && (
+          <motion.div
+            className="flex items-center gap-3 text-yellow-400"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          >
+            <span className="text-2xl">⏳</span>
+            <span className="text-lg font-medium">Thinking...</span>
+          </motion.div>
+        )}
 
-      {/* AI Response Box */}
-      {response && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-6 bg-gray-800 p-5 rounded-lg shadow-lg max-w-md text-center border border-gray-700"
-        >
-          <h2 className="text-lg font-semibold text-blue-300">🤖 AI:</h2>
-          <p className="mt-2 text-gray-300">{response}</p>
-        </motion.div>
-      )}
+        {/* AI Response */}
+        <AnimatePresence>
+          {response && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-700 w-full"
+            >
+              <h2 className="text-lg font-semibold text-blue-300 mb-2 flex items-center gap-2">
+                <span>🤖</span> Your AI Friend:
+              </h2>
+              <p className="text-gray-200 leading-relaxed">{response}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* Error Messages */}
-      {error && (
-        <motion.p
-          initial={{ opacity: 0, y: -5 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-red-500 mt-4"
-        >
-          {error}
-        </motion.p>
-      )}
+        {/* Error Message */}
+        <AnimatePresence>
+          {error && (
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="text-red-400 text-sm font-medium bg-red-900/20 px-4 py-2 rounded-lg"
+            >
+              {error}
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Footer Hint */}
+      <p className="mt-8 text-gray-500 text-sm">
+        Tip: Speak clearly for the best experience!
+      </p>
     </div>
   );
 };
