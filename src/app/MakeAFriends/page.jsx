@@ -1,69 +1,18 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 
-const DB_NAME = "AI_Friend_DB";
-const STORE_NAME = "conversations";
-const DB_VERSION = 1;
 const apiKey = process.env.NEXT_PUBLIC_API_KEY;
-
-const openDB = () => {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onerror = () => reject("Database error");
-    request.onsuccess = (event) => resolve(event.target.result);
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, {
-          keyPath: "id",
-          autoIncrement: true,
-        });
-      }
-    };
-  });
-};
-
-const saveToIndexedDB = async (message) => {
-  const db = await openDB();
-  const tx = db.transaction(STORE_NAME, "readwrite");
-  const store = tx.objectStore(STORE_NAME);
-  store.add({ message, timestamp: Date.now() });
-};
-
-const saveToMongoDB = async (message) => {
-  try {
-    await axios.post("/api/messages", { message });
-  } catch (error) {
-    console.error("MongoDB Save Error:", error);
-  }
-};
-
-const getAllMessages = async () => {
-  try {
-    const { data } = await axios.get("/api/messages");
-    return data;
-  } catch (error) {
-    console.error("MongoDB Fetch Error:", error);
-    return [];
-  }
-};
 
 const AIChat = () => {
   const [listening, setListening] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [response, setResponse] = useState("");
   const [error, setError] = useState(null);
-  const [messages, setMessages] = useState([]);
-
-  useEffect(() => {
-    getAllMessages().then(setMessages);
-  }, []);
 
   const startListening = useCallback(() => {
     const recognition = new (window.SpeechRecognition ||
       window.webkitSpeechRecognition)();
-    recognition.lang = "en-US"; // Changed to English
+    recognition.lang = "en-US";
     recognition.continuous = false;
     recognition.interimResults = false;
 
@@ -83,7 +32,7 @@ const AIChat = () => {
   const fetchAIResponse = async (text) => {
     try {
       const prompt = `You are my old friend, and we are talking after a long time. We will have a friendly conversation in English. If I make any grammar mistakes, correct them naturally in a friendly way while continuing the conversation. 
-
+      
       My message: "${text}"`;
 
       const res = await fetch(
@@ -103,9 +52,6 @@ const AIChat = () => {
 
       setResponse(aiText);
       speak(aiText);
-      saveToIndexedDB({ user: "AI", text: aiText });
-      saveToMongoDB({ user: "AI", text: aiText });
-      setMessages((prev) => [...prev, { user: "AI", text: aiText }]);
     } catch (error) {
       setError("Error getting response from AI.");
     } finally {
@@ -115,7 +61,7 @@ const AIChat = () => {
 
   const speak = (text) => {
     const speech = new SpeechSynthesisUtterance(text);
-    speech.lang = "en-US"; // English language for speech synthesis
+    speech.lang = "en-US";
     window.speechSynthesis.speak(speech);
   };
 
