@@ -8,14 +8,27 @@ const AIChat = () => {
   const [processing, setProcessing] = useState(false);
   const [response, setResponse] = useState("");
   const [error, setError] = useState(null);
+  const [recognition, setRecognition] = useState(null);
 
-  const recognition = new (window.SpeechRecognition ||
-    window.webkitSpeechRecognition)();
-  recognition.lang = "en-US";
-  recognition.continuous = false;
-  recognition.interimResults = false;
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recog = new SpeechRecognition();
+        recog.lang = "en-US";
+        recog.continuous = false;
+        recog.interimResults = false;
+        setRecognition(recog);
+      } else {
+        setError("Speech recognition not supported in this browser.");
+      }
+    }
+  }, []);
 
   const startListening = useCallback(() => {
+    if (!recognition) return;
+
     setError(null);
     recognition.onstart = () => setListening(true);
     recognition.onresult = async (event) => {
@@ -31,7 +44,7 @@ const AIChat = () => {
       setListening(false);
     };
     recognition.start();
-  }, []);
+  }, [recognition]);
 
   const fetchAIResponse = async (text) => {
     try {
@@ -66,9 +79,9 @@ const AIChat = () => {
   const speak = (text) => {
     const speech = new SpeechSynthesisUtterance(text);
     speech.lang = "en-US";
-    
+
     speech.onend = () => {
-      // When AI finishes speaking, start listening again
+      // Restart listening after AI finishes speaking
       startListening();
     };
 
