@@ -1,4 +1,4 @@
-import "../styles/globals.css"; // ✅ Import Tailwind styles
+import "../app/"; // ✅ Import Tailwind styles
 
 function MyApp({ Component, pageProps }) {
   return <Component {...pageProps} />;
