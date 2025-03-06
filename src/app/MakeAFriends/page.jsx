@@ -100,7 +100,7 @@ const AIChat = () => {
         animate={{ opacity: 1, y: 0 }}
         className="text-4xl font-bold z-0 mb-8 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"
       >
-        <span className="text-white">🤖</span>AI Friend
+        <span className="text-white">🤖</span>AI English Teacher
       </motion.h1>
 
       {/* Main Interaction Area */}
@@ -120,15 +120,7 @@ const AIChat = () => {
               className="relative bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2 text-lg font-medium"
             >
               <span>🎤 Speak</span>
-              {/* {isMicHovered && (
-                <motion.span
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: -30 }}
-                  className="absolute top-0 text-sm text-blue-300"
-                >
-                  Say something to start!
-                </motion.span>
-              )} */}
+            
             </motion.button>
           )}
         </AnimatePresence>
