@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion"; // Added AnimatePresence for exit animations
+import Image from "next/image";
+import english_teacher from '../../images/english-teacher.jpg'
 
 const apiKey = process.env.NEXT_PUBLIC_API_KEY;
 
@@ -92,10 +94,11 @@ const AIChat = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 to-gray-900 text-white flex flex-col items-center justify-center p-6">
       {/* Header with subtle gradient */}
+      <Image src={english_teacher} className="absolute w-full -top-[70%] max-lg:top-0 h-screeen z-0"/>
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-4xl font-bold mb-8 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"
+        className="text-4xl font-bold z-0 mb-8 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"
       >
         <span className="text-white">🤖</span>AI Friend
       </motion.h1>
