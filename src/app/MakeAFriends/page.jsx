@@ -97,7 +97,7 @@ const AIChat = () => {
           alt="AI English Teacher"
           layout="fill"
           objectFit="cover"
-          className="opacity-80"
+          className=""
         />
         <div className="absolute inset-0 bg-gradient-to-r from-gray-950/50 to-transparent" />
       </div>
@@ -121,7 +121,7 @@ const AIChat = () => {
         </motion.h1>
 
         {/* Interaction Area */}
-        <div className="flex z-0 flex-col items-center gap-6 w-full max-w-lg">
+        <div className="flex z-0 flex-col items-center gap-6 w-full max-w-lg max-lg:pt-[50%]">
           <AnimatePresence> 
             {!listening && !processing && (
               <motion.button
