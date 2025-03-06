@@ -92,13 +92,13 @@ const AIChat = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 to-gray-900 text-white flex flex-col items-center justify-center p-6">
+    <div className="pt-[30%] max-lg:pt-[90%] h-screen bg-gradient-to-br from-gray-950 to-gray-900 text-white flex flex-col items-center justify-center p-6">
       {/* Header with subtle gradient */}
-      <Image src={english_teacher} className="absolute w-full -top-[70%] max-lg:top-0 h-screeen z-0"/>
+      <Image src={english_teacher} className="absolute w-full -top-[70%] max-lg:top-0 max-lg:h-[100%] z-0"/>
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-4xl font-bold z-0 mb-8 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"
+        className="text-4xl text-center font-bold z-0 mb-8 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent"
       >
         <span className="text-white">🤖</span>AI English Teacher
       </motion.h1>
