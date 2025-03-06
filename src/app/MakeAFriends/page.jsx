@@ -49,7 +49,7 @@ const AIChat = () => {
 
   const fetchAIResponse = async (text) => {
     try {
-      const prompt = `You are my friendly AI English teacher. We are having a casual conversation in English after a long time. If I make any grammar mistakes, correct them naturally in a supportive way while keeping the conversation flowing.
+      const prompt = `You are my friendly AI English teacher, and we’re catching up for a casual, relaxed conversation in English after a long break. If I make any grammar mistakes, gently correct them in a natural, encouraging way—blending the corrections into our chat so the conversation keeps flowing smoothly.
 
       My message: "${text}"`;
 
