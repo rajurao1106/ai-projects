@@ -54,7 +54,7 @@ const AIChat = () => {
       My message: "${text}"`;
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -63,7 +63,7 @@ const AIChat = () => {
       );
 
       if (!res.ok) throw new Error("❌ Problem receiving response from AI.");
-      const data = await res.json();
+      const data = await res.json(); 
       const aiText =
         data?.candidates?.[0]?.content?.parts?.[0]?.text ||
         "🤖 Sorry, I couldn't understand that.";
