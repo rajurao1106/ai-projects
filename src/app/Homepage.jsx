@@ -25,15 +25,9 @@ export default function Homepage() {
             className="flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-xl font-medium shadow-md transition-all duration-200 transform hover:scale-105 hover:shadow-xl"
           >
             <Sparkles className="h-5 w-5" />
-            cretives
-          </Link>
-          <Link
-            href="/MeaningYourName"
-            className="flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-xl font-medium shadow-md transition-all duration-200 transform hover:scale-105 hover:shadow-xl"
-          >
-            <Sparkles className="h-5 w-5" />
             Explore the Deeper Meaning of Your Name
           </Link>
+
           <Link
             href="/MakeAFriends"
             className="flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-xl font-medium shadow-md transition-all duration-200 transform hover:scale-105 hover:shadow-xl"
