@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -24,7 +24,7 @@ const AIChat = () => {
         setRecognition(recog);
       } else {
         setError(
-          "❌ Your browser does not support speech recognition. Please use a modern browser."
+          "❌ Your browser doesn't support speech recognition. Please try a modern browser."
         );
       }
     }
@@ -40,7 +40,7 @@ const AIChat = () => {
       await fetchAIResponse(userInput);
     };
     recognition.onerror = () => {
-      setError("⚠️ Speech recognition failed. Please try again.");
+      setError("⚠️ Oops! Speech recognition failed. Try again?");
       setListening(false);
     };
     recognition.onend = () => setListening(false);
@@ -54,23 +54,23 @@ const AIChat = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_XAI_API_KEY}`,
         },
         body: JSON.stringify({
           message: text,
-          role: "I am your professional AI English teacher, here to assist you in a friendly and conversational manner. Let’s practice English together! I’ll listen to you, respond naturally, and gently correct any grammar mistakes within our chat, keeping the conversation smooth and engaging.",
+          role: "I'm your friendly AI English teacher. Let's have a casual, relaxed chat in English. If you make grammar mistakes, I'll gently correct them naturally in our conversation, keeping it flowing smoothly.",
         }),
       });
 
-      if (!res.ok) throw new Error("❌ Unable to connect to the AI service.");
+      if (!res.ok) throw new Error("❌ Trouble connecting to the AI.");
       const data = await res.json();
       const aiText =
-        data.response || "🤖 I didn’t quite understand that. Could you try again?";
+        data.response || "🤖 Hmm, I didn’t catch that. Could you try again?";
 
       setResponse(aiText);
       speak(aiText);
     } catch (error) {
-      setError("⚠️ An error occurred. Please try again!");
+      setError("⚠️ Something went wrong. Let’s try that again!");
     } finally {
       setProcessing(false);
     }
@@ -80,8 +80,8 @@ const AIChat = () => {
     const speech = new SpeechSynthesisUtterance(text);
     speech.lang = "en-US";
     speech.volume = 1;
-    speech.rate = 0.85; // Slower pace for clear pronunciation
-    speech.pitch = 1.1; // Slightly higher pitch for a warm, approachable tone
+    speech.rate = 0.85; // Slower for teaching clarity
+    speech.pitch = 1.1; // Slightly higher pitch for friendliness
     speech.onend = () => startListening();
     window.speechSynthesis.speak(speech);
   };
@@ -111,7 +111,7 @@ const AIChat = () => {
             objectFit="cover"
             className=""
           />
-          <div className="absolute inset-0 bg-gray-900/60" />
+          <div className="absolute  inset-0 bg-gray-900/60" />
         </div>
 
         {/* Header */}
@@ -143,7 +143,7 @@ const AIChat = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 className="relative bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-5 rounded-full shadow-lg transition-all duration-300 flex items-center gap-4 text-lg font-medium focus:outline-none focus:ring-4 focus:ring-indigo-500"
-                aria-label="Begin your English lesson"
+                aria-label="Start speaking to your English teacher"
               >
                 <span className="text-2xl animate-pulse">🎤</span>
                 <span>Start Speaking</span>
@@ -153,7 +153,7 @@ const AIChat = () => {
                     animate={{ opacity: 1, y: -40 }}
                     className="absolute top-0 text-sm text-indigo-300 font-light"
                   >
-                    Ready to improve your English?
+                    Let’s practice English together!
                   </motion.span>
                 )}
               </motion.button>
@@ -186,7 +186,7 @@ const AIChat = () => {
               >
                 <span className="text-3xl">✨</span>
                 <span className="text-xl font-medium">
-                  Crafting your response...
+                  Preparing your lesson...
                 </span>
               </motion.div>
             )}
@@ -203,7 +203,7 @@ const AIChat = () => {
                 className="mt-8 bg-gray-800/95 backdrop-blur-md p-6 rounded-2xl shadow-2xl border border-indigo-500/20 w-full"
               >
                 <h2 className="text-xl font-semibold text-indigo-300 mb-4 flex items-center gap-3">
-                  <span>📚</span> Your Teacher Responds:
+                  <span>📚</span> Your Teacher Says:
                 </h2>
                 <p className="text-gray-100 leading-relaxed whitespace-pre-wrap text-base">
                   {response}
@@ -235,7 +235,7 @@ const AIChat = () => {
           transition={{ delay: 0.8, duration: 0.6 }}
           className="mt-8 text-sm text-gray-400 z-10 text-center max-w-xs"
         >
-          Tip: Feel free to ask about grammar, vocabulary, or simply chat in English!
+          Tip: Speak naturally—ask about grammar, vocab, or just chat!
         </motion.p>
       </div>
     </div>
