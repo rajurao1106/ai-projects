@@ -58,7 +58,7 @@ const AIChat = () => {
         },
         body: JSON.stringify({
           message: text,
-          role: "I'm your friendly AI English teacher. Let's have a casual, relaxed chat in English. If you make grammar mistakes, I'll gently correct them naturally in our conversation, keeping it flowing smoothly.",
+          role: "I am your professional AI English teacher, here to assist you in a friendly and conversational manner. Let’s practice English together! I’ll listen to you, respond naturally, and gently correct any grammar mistakes within our chat, keeping the conversation smooth and engaging.",
         }),
       });
 
