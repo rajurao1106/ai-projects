@@ -57,7 +57,20 @@ const AIChat = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            contents: [{ role: "user", parts: [{ text }] }],
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  {
+                    text: `I am your expert AI English teacher, dedicated to helping Hindi speakers
+                     master English both grammatically and verbally. I will guide you with clear explanations, 
+                     correct your mistakes naturally, and engage you in real conversations to improve fluency. 
+                     Whether you're learning basic grammar or practicing advanced speaking skills, I'll ensure a 
+                     smooth and enjoyable learning experience tailored just for you! ${text}`,
+                  },
+                ],
+              },
+            ],
           }),
         }
       );
@@ -81,15 +94,14 @@ const AIChat = () => {
     const speech = new SpeechSynthesisUtterance(text);
     speech.lang = "en-US";
     speech.volume = 1;
-    speech.rate = 0.85; // Slower for teaching clarity
-    speech.pitch = 1.1; // Slightly higher pitch for friendliness
+    speech.rate = 0.85;
+    speech.pitch = 1.1;
     speech.onend = () => startListening();
     window.speechSynthesis.speak(speech);
   };
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-indigo-950 via-gray-900 to-blue-900 text-gray-100 flex flex-col lg:flex-row overflow-hidden">
-      {/* Image Section */}
       <div className="relative hidden lg:block lg:w-1/2">
         <Image
           src={english_teacher}
@@ -100,10 +112,7 @@ const AIChat = () => {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-950/70 to-transparent" />
       </div>
-
-      {/* Chat Section */}
       <div className="w-full lg:w-1/2 h-screen flex flex-col items-center justify-between p-8 lg:p-12 relative">
-        {/* Mobile Image Overlay */}
         <div className="lg:hidden absolute inset-0">
           <Image
             src={english_teacher}
@@ -113,8 +122,6 @@ const AIChat = () => {
           />
           <div className="absolute inset-0 bg-gray-900/60" />
         </div>
-
-        {/* Header */}
         <motion.h1
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -123,11 +130,8 @@ const AIChat = () => {
         >
           Your AI English Teacher
         </motion.h1>
-
-        {/* Interaction Area */}
         <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md z-10">
           <AnimatePresence mode="wait">
-            {/* Idle State */}
             {!listening && !processing && (
               <motion.button
                 key="mic-button"
@@ -157,38 +161,6 @@ const AIChat = () => {
                   </motion.span>
                 )}
               </motion.button>
-            )}
-
-            {/* Listening State */}
-            {listening && (
-              <motion.div
-                key="listening"
-                className="flex items-center gap-4 text-indigo-300"
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{
-                  duration: 0.8,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              >
-                <span className="text-3xl">🎙️</span>
-                <span className="text-xl font-medium">I’m listening...</span>
-              </motion.div>
-            )}
-
-            {/* Processing State */}
-            {processing && (
-              <motion.div
-                key="processing"
-                className="flex items-center gap-4 text-teal-300"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
-              >
-                <span className="text-3xl">✨</span>
-                <span className="text-xl font-medium">
-                  Preparing your lesson...
-                </span>
-              </motion.div>
             )}
           </AnimatePresence>
         </div>
