@@ -49,7 +49,7 @@ const AIChat = () => {
 
   const fetchAIResponse = async (text) => {
     try {
-      const res = await fetch("https://api.xai.com/grok3", {
+      const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key", {
         // Hypothetical endpoint
         method: "POST",
         headers: {
