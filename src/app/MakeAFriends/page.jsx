@@ -30,7 +30,7 @@ const AIChat = () => {
     }
   }, []);
 
-  const startListening = useCallback(() => { 
+  const startListening = useCallback(() => {
     if (!recognition) return;
     setError(null);
     recognition.onstart = () => setListening(true);
@@ -39,8 +39,8 @@ const AIChat = () => {
       setProcessing(true);
       await fetchAIResponse(userInput);
     };
-    recognition.onerror = () => {
-      setError("⚠️ Oops! Speech recognition failed. Try again?");
+    recognition.onerror = (e) => {
+      setError(`⚠️ Speech recognition error: ${e.error}`);
       setListening(false);
     };
     recognition.onend = () => setListening(false);
@@ -49,23 +49,24 @@ const AIChat = () => {
 
   const fetchAIResponse = async (text) => {
     try {
-      const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key", {
-        // Hypothetical endpoint
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-        },
-        body: JSON.stringify({
-          message: text,
-          role: "I am your professional AI English teacher, here to assist you in a friendly and conversational manner. Let’s practice English together! I’ll listen to you, respond naturally, and gently correct any grammar mistakes within our chat, keeping the conversation smooth and engaging.",
-        }),
-      });
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_API_KEY}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text }] }],
+          }),
+        }
+      );
 
       if (!res.ok) throw new Error("❌ Trouble connecting to the AI.");
       const data = await res.json();
       const aiText =
-        data.response || "🤖 Hmm, I didn’t catch that. Could you try again?";
+        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "🤖 Hmm, I didn’t catch that. Could you try again?";
 
       setResponse(aiText);
       speak(aiText);
@@ -109,9 +110,8 @@ const AIChat = () => {
             alt="Your AI English Teacher"
             layout="fill"
             objectFit="cover"
-            className=""
           />
-          <div className="absolute  inset-0 bg-gray-900/60" />
+          <div className="absolute inset-0 bg-gray-900/60" />
         </div>
 
         {/* Header */}
@@ -191,52 +191,7 @@ const AIChat = () => {
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* AI Response */}
-          <AnimatePresence>
-            {response && (
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 30 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="mt-8 bg-gray-800/95 backdrop-blur-md p-6 rounded-2xl shadow-2xl border border-indigo-500/20 w-full"
-              >
-                <h2 className="text-xl font-semibold text-indigo-300 mb-4 flex items-center gap-3">
-                  <span>📚</span> Your Teacher Says:
-                </h2>
-                <p className="text-gray-100 leading-relaxed whitespace-pre-wrap text-base">
-                  {response}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Error Message */}
-          <AnimatePresence>
-            {error && (
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.4 }}
-                className="mt-4 text-red-300 text-sm font-medium bg-red-900/20 px-4 py-2 rounded-lg border border-red-500/30"
-              >
-                {error}
-              </motion.p>
-            )}
-          </AnimatePresence>
         </div>
-
-        {/* Footer */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
-          className="mt-8 text-sm text-gray-400 z-10 text-center max-w-xs"
-        >
-          Tip: Speak naturally—ask about grammar, vocab, or just chat!
-        </motion.p>
       </div>
     </div>
   );
