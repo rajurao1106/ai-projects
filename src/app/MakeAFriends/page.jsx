@@ -30,7 +30,7 @@ const AIChat = () => {
     }
   }, []);
 
-  const startListening = useCallback(() => {
+  const startListening = useCallback(() => { 
     if (!recognition) return;
     setError(null);
     recognition.onstart = () => setListening(true);
