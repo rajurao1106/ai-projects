@@ -115,9 +115,9 @@ const AIChat = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-3xl sm:text-4xl font-bold mb-6 sm:mb-8 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent text-center"
+          className="text-3xl z-0 sm:text-4xl font-bold mb-6 sm:mb-8 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent text-center"
         >
-          <span className="text-white mr-2">🤖</span>AI English Teacher
+        AI English Teacher
         </motion.h1>
 
         {/* Interaction Area */}
@@ -141,7 +141,7 @@ const AIChat = () => {
                   <motion.span
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: -30 }}
-                    className="absolute top-0 text-xs text-blue-200"
+                    className="absolute top-0 text-xs text-green-500"
                   >
                     Practice your English now!
                   </motion.span>
@@ -207,7 +207,7 @@ const AIChat = () => {
         </div>
 
         {/* Footer Hint */}
-        <p className="mt-6 text-gray-400 text-sm text-center">
+        <p className="mt-6 z-0 text-sm text-center">
           Tip: Speak clearly and ask about grammar or vocabulary!
         </p>
       </div>
