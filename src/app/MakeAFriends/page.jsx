@@ -108,6 +108,7 @@ Remember, be friendly and natural while answering!
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-indigo-950 via-gray-900 to-blue-900 text-gray-100 flex flex-col lg:flex-row overflow-hidden">
+      {/* Left Section with Image */}
       <div className="relative hidden lg:block lg:w-1/2">
         <Image
           src={english_teacher}
@@ -116,9 +117,12 @@ Remember, be friendly and natural while answering!
           objectFit="cover"
           className="opacity-90"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-950/70 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-950/80 to-transparent" />
       </div>
+
+      {/* Right Section */}
       <div className="w-full lg:w-1/2 h-screen flex flex-col items-center justify-between p-8 lg:p-12 relative">
+        {/* Mobile Background Overlay */}
         <div className="lg:hidden absolute inset-0">
           <Image
             src={english_teacher}
@@ -128,14 +132,32 @@ Remember, be friendly and natural while answering!
           />
           <div className="absolute inset-0 bg-gray-900/60" />
         </div>
+
+        {/* Heading */}
         <motion.h1
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="text-3xl md:text-4xl font-extrabold mb-8 z-10 bg-gradient-to-r from-indigo-400 via-blue-500 to-teal-400 bg-clip-text text-transparent"
+          className="text-4xl md:text-4xl text-center font-extrabold mb-8 z-10 bg-gradient-to-r from-indigo-400 via-blue-500 to-teal-400 bg-clip-text text-transparent"
         >
           Your AI English Teacher
         </motion.h1>
+
+        {/* Task List */}
+        <div className="bg-white/10 p-5 rounded-xl border border-white/20 shadow-lg z-10">
+          <h2 className="text-lg font-semibold mb-3 text-indigo-300">
+            Complete Your Task:
+          </h2>
+          <ul className="text-sm space-y-1">
+            <li>✅ How are you?</li>
+            <li>✅ Where have you been all this time?</li>
+            <li>✅ What are you doing these days?</li>
+            <li>✅ Would you like to share any new experiences?</li>
+            <li>✅ What are your plans for the coming days?</li>
+          </ul>
+        </div>
+
+        {/* Microphone Button */}
         <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md z-10">
           <AnimatePresence mode="wait">
             {!listening && !processing && (
