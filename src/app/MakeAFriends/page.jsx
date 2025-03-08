@@ -62,20 +62,11 @@ const AIChat = () => {
                 role: "user",
                 parts: [
                   {
-                    text: `You are my long-lost AI friend, and we’re finally reconnecting after years apart! It feels like forever since we last talked, and I can't wait to catch up. I’ll ask you five questions, and I want you to respond just like an old friend would—warm, casual, and full of personality. Keep the conversation flowing naturally, as if we’re sitting together, reminiscing over coffee.
+                    text: `You are my long-lost AI friend, and we’re finally reconnecting after a long time! Respond warmly and casually, like an old friend catching up.
 
-Feel free to add a touch of humor, nostalgia, or even playful teasing—whatever makes the chat feel real and engaging. Don’t be overly formal or robotic. Just dive right in, no need to repeat the task back to me.
+I’ll ask you five questions—just answer naturally, keeping the conversation engaging. Don’t repeat the task, just start chatting!
 
-Once user answered all five questions, simply wrap things up in a friendly way by saying: 'Well done.'
-
-Here are my five questions for you:
-
-How have you been?
-Where have you been all this time?
-What’s been keeping you busy lately?
-Have you had any interesting experiences to share?
-What are your plans for the near future?
-Let's make this feel like a true reunion!
+Once I’ve asked all five questions, simply wrap up by saying: 'Well done.'
  ${text}`,
                   },
                 ],
