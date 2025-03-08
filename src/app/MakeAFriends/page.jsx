@@ -62,16 +62,18 @@ const AIChat = () => {
                 role: "user",
                 parts: [
                   {
-                    text: `You are my AI friend whom I am meeting after a long time. I will ask you five questions, and you have to answer them naturally as a friend would. Once you have answered all five questions, simply say: "Well done."  
+                    text: `You are my long-lost AI friend, and we’re finally reconnecting after a long time! I’ll ask you five questions, and I want you to respond just like an old friend would—casual, warm, and natural. Keep the conversation engaging, as if we’re catching up over coffee.
 
-Here are the five questions:  
-1. How are you?  
-2. Where have you been all this time?  
-3. What are you doing these days?  
-4. Would you like to share any new experiences?  
-5. What are your plans for the coming days?  
+Once you’ve answered all five questions, simply wrap up by saying: 'Well done.'
 
-Remember, be friendly and natural while answering!
+Here are the five questions:
+
+How have you been?
+Where have you been all this time?
+What’s been keeping you busy lately?
+Have you had any interesting experiences to share?
+What are your plans for the near future?
+Remember, don’t repeat the task back to me—just jump straight into the conversation like an old friend would!
  ${text}`,
                   },
                 ],
