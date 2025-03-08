@@ -69,7 +69,7 @@ I will ask you five questions, and you will reply to each one. After I have aske
 Notice: When you meet the user, keep the conversation short—only one line. Speak only in English.
  ${text}`,
                   },
-                ],
+                ], 
               },
             ],
           }),
