@@ -70,7 +70,7 @@ Notice: When you meet the user, keep the conversation short—only one line. Spe
  ${text}`,
                   },
                 ], 
-              },
+              }, 
             ],
           }),
         }
