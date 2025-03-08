@@ -23,7 +23,9 @@ const AIChat = () => {
         recog.interimResults = false;
         setRecognition(recog);
       } else {
-        setError("❌ Your browser doesn't support speech recognition. Please try a modern browser.");
+        setError(
+          "❌ Your browser doesn't support speech recognition. Please try a modern browser."
+        );
       }
     }
   }, []);
@@ -51,12 +53,18 @@ const AIChat = () => {
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_API_KEY}`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({
             contents: [
               {
                 role: "user",
-                parts: [{ text }],
+                parts: [
+                  {
+                    text: `You are my long-lost friend from Delhi, India. You are unmarried and working in a web development job. We’re finally reconnecting after a long time! Respond warmly and casually, like an old friend catching up.I will ask you five questions, and you will reply to each one. After I have asked all five questions, you will say 'Well done!'Notice: When you meet the user, keep the conversation short—only one line. Speak only in English.${text}`,
+                  },
+                ],
               },
             ],
           }),
@@ -65,7 +73,8 @@ const AIChat = () => {
 
       if (!res.ok) throw new Error("❌ Trouble connecting to the AI.");
       const data = await res.json();
-      const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      const aiText =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text ||
         "🤖 Hmm, I didn’t catch that. Could you try again?";
 
       setResponse(aiText);
@@ -89,23 +98,46 @@ const AIChat = () => {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-indigo-950 via-gray-900 to-blue-900 text-gray-100 flex flex-col lg:flex-row overflow-hidden">
+      {/* Left Section with Image */}
       <div className="relative hidden lg:block lg:w-1/2">
-        <Image src={english_teacher} alt="Your AI English Teacher" layout="fill" objectFit="cover" className="opacity-90" />
+        <Image
+          src={english_teacher}
+          alt="Your AI English Teacher"
+          layout="fill"
+          objectFit="cover"
+          className="opacity-90"
+        />
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-950/80 to-transparent" />
       </div>
 
+      {/* Right Section */}
       <div className="w-full lg:w-1/2 h-screen flex flex-col items-center justify-between p-8 lg:p-12 relative">
+        {/* Mobile Background Overlay */}
         <div className="lg:hidden absolute inset-0">
-          <Image src={english_teacher} alt="Your AI English Teacher" layout="fill" objectFit="cover" />
+          <Image
+            src={english_teacher}
+            alt="Your AI English Teacher"
+            layout="fill"
+            objectFit="cover"
+          />
           <div className="absolute inset-0 bg-gray-900/60" />
         </div>
 
-        <motion.h1 initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: "easeOut" }} className="text-4xl md:text-4xl text-center font-extrabold mb-8 z-10 bg-gradient-to-r from-indigo-400 via-blue-500 to-teal-400 bg-clip-text text-transparent">
+        {/* Heading */}
+        <motion.h1
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="text-4xl md:text-4xl text-center font-extrabold mb-8 z-10 bg-gradient-to-r from-indigo-400 via-blue-500 to-teal-400 bg-clip-text text-transparent"
+        >
           Your AI English Teacher
         </motion.h1>
 
+        {/* Task List */}
         <div className="bg-white/10 p-5 rounded-xl border border-white/20 shadow-lg z-10">
-          <h2 className="text-lg font-semibold mb-3 text-indigo-300">Complete Your Task:</h2>
+          <h2 className="text-lg font-semibold mb-3 text-indigo-300">
+            Complete Your Task:
+          </h2>
           <ul className="text-sm space-y-1">
             <li>✅ How are you?</li>
             <li>✅ Where have you been all this time?</li>
@@ -115,6 +147,7 @@ const AIChat = () => {
           </ul>
         </div>
 
+        {/* Microphone Button */}
         <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md z-10">
           <AnimatePresence mode="wait">
             {!listening && !processing && (
@@ -123,7 +156,10 @@ const AIChat = () => {
                 onClick={startListening}
                 onMouseEnter={() => setIsMicHovered(true)}
                 onMouseLeave={() => setIsMicHovered(false)}
-                whileHover={{ scale: 1.1, boxShadow: "0 0 20px rgba(79, 70, 229, 0.6)" }}
+                whileHover={{
+                  scale: 1.1,
+                  boxShadow: "0 0 20px rgba(79, 70, 229, 0.6)",
+                }}
                 whileTap={{ scale: 0.95 }}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -134,7 +170,11 @@ const AIChat = () => {
                 <span className="text-2xl animate-pulse">🎤</span>
                 <span>Start Speaking</span>
                 {isMicHovered && (
-                  <motion.span initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: -40 }} className="absolute top-0 text-sm text-indigo-300 font-light">
+                  <motion.span
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: -40 }}
+                    className="absolute top-0 text-sm text-indigo-300 font-light"
+                  >
                     Let’s practice English together!
                   </motion.span>
                 )}
