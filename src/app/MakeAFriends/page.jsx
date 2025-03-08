@@ -62,11 +62,17 @@ const AIChat = () => {
                 role: "user",
                 parts: [
                   {
-                    text: `I am your expert AI English teacher, dedicated to helping Hindi speakers
-                     master English both grammatically and verbally. I will guide you with clear explanations, 
-                     correct your mistakes naturally, and engage you in real conversations to improve fluency. 
-                     Whether you're learning basic grammar or practicing advanced speaking skills, I'll ensure a 
-                     smooth and enjoyable learning experience tailored just for you! ${text}`,
+                    text: `You are my AI friend whom I am meeting after a long time. I will ask you five questions, and you have to answer them naturally as a friend would. Once you have answered all five questions, simply say: "Well done."  
+
+Here are the five questions:  
+1. How are you?  
+2. Where have you been all this time?  
+3. What are you doing these days?  
+4. Would you like to share any new experiences?  
+5. What are your plans for the coming days?  
+
+Remember, be friendly and natural while answering!
+ ${text}`,
                   },
                 ],
               },
