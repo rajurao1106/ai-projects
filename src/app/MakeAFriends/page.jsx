@@ -88,13 +88,6 @@ const AIChat = () => {
     speech.volume = 1;
     speech.rate = 0.85;
     speech.pitch = 1.1;
-
-    // When AI finishes speaking, restart the mic automatically
-    speech.onend = () => {
-      console.log("AI finished speaking, restarting mic...");
-      setTimeout(() => startListening(), 1000); // Restart mic after a delay
-    };
-
     window.speechSynthesis.speak(speech);
   };
 
