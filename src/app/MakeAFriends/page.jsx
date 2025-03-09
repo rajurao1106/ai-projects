@@ -62,7 +62,7 @@ const AIChat = () => {
                 role: "user",
                 parts: [
                   {
-                    text: `You are my long-lost friend from Delhi, India. You are unmarried and working in a web development job. We’re finally reconnecting after a long time! Respond warmly and casually, like an old friend catching up. I will ask you five questions, and you will reply to each one.${text}`,
+                    text: `You are a helpful AI assistant. The user asked: "${text}". Provide a relevant and meaningful response in a warm and friendly tone.`,
                   },
                 ],
               },
@@ -121,15 +121,9 @@ const AIChat = () => {
 
         <div className="bg-white/10 p-5 rounded-xl border border-white/20 shadow-lg z-10">
           <h2 className="text-lg font-semibold mb-3 text-indigo-300">
-            Complete Your Task:
+            Your Response:
           </h2>
-          <ul className="text-sm space-y-1">
-            <li>✅ How are you?</li>
-            <li>✅ Where have you been all this time?</li>
-            <li>✅ What are you doing these days?</li>
-            <li>✅ Would you like to share any new experiences?</li>
-            <li>✅ What are your plans for the coming days?</li>
-          </ul>
+          <p className="text-sm">{response || "Start speaking to get a response!"}</p>
         </div>
 
         <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md z-10">
