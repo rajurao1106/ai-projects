@@ -11,7 +11,6 @@ const AIChat = () => {
   const [error, setError] = useState(null);
   const [recognition, setRecognition] = useState(null);
   const [chatHistory, setChatHistory] = useState([]);
-  const [isMicHovered, setIsMicHovered] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -20,7 +19,7 @@ const AIChat = () => {
       if (SpeechRecognition) {
         const recog = new SpeechRecognition();
         recog.lang = "en-US";
-        recog.continuous = false;
+        recog.continuous = true; // Make it continuous
         recog.interimResults = false;
         setRecognition(recog);
       } else {
@@ -88,8 +87,20 @@ const AIChat = () => {
     speech.volume = 1;
     speech.rate = 0.85;
     speech.pitch = 1.1;
+
+    speech.onend = () => {
+      // Restart listening automatically after AI response
+      setTimeout(() => {
+        startListening();
+      }, 500);
+    };
+
     window.speechSynthesis.speak(speech);
   };
+
+  useEffect(() => {
+    startListening();
+  }, [startListening]);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-indigo-950 via-gray-900 to-blue-900 text-gray-100 flex flex-col lg:flex-row overflow-hidden">
@@ -133,8 +144,6 @@ const AIChat = () => {
               <motion.button
                 key="mic-button"
                 onClick={startListening}
-                onMouseEnter={() => setIsMicHovered(true)}
-                onMouseLeave={() => setIsMicHovered(false)}
                 whileHover={{ scale: 1.1, boxShadow: "0 0 20px rgba(79, 70, 229, 0.6)" }}
                 whileTap={{ scale: 0.95 }}
                 className="relative bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-5 rounded-full shadow-lg transition-all duration-300 flex items-center gap-4 text-lg font-medium"
