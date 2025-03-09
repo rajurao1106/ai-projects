@@ -10,6 +10,7 @@ const AIChat = () => {
   const [response, setResponse] = useState("");
   const [error, setError] = useState(null);
   const [recognition, setRecognition] = useState(null);
+  const [chatHistory, setChatHistory] = useState([]);
   const [isMicHovered, setIsMicHovered] = useState(false);
 
   useEffect(() => {
@@ -23,9 +24,7 @@ const AIChat = () => {
         recog.interimResults = false;
         setRecognition(recog);
       } else {
-        setError(
-          "❌ Your browser doesn't support speech recognition. Please try a modern browser."
-        );
+        setError("❌ Your browser doesn't support speech recognition.");
       }
     }
   }, []);
@@ -37,7 +36,9 @@ const AIChat = () => {
     recognition.onresult = async (event) => {
       const userInput = event.results[0][0].transcript;
       setProcessing(true);
-      await fetchAIResponse(userInput);
+      const updatedChat = [...chatHistory, { role: "user", text: userInput }];
+      setChatHistory(updatedChat);
+      await fetchAIResponse(updatedChat);
     };
     recognition.onerror = (e) => {
       setError(`⚠️ Speech recognition error: ${e.error}`);
@@ -45,9 +46,9 @@ const AIChat = () => {
     };
     recognition.onend = () => setListening(false);
     recognition.start();
-  }, [recognition]);
+  }, [recognition, chatHistory]);
 
-  const fetchAIResponse = async (text) => {
+  const fetchAIResponse = async (history) => {
     try {
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_API_KEY}`,
@@ -57,30 +58,25 @@ const AIChat = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [
-                  {
-                    text: `You are a helpful AI assistant. The user asked: "${text}". Provide a relevant and meaningful response in a warm and friendly tone.`,
-                  },
-                ],
-              },
-            ],
+            contents: history.map((msg) => ({
+              role: msg.role,
+              parts: [{ text: msg.text }],
+            })),
           }),
         }
       );
 
-      if (!res.ok) throw new Error("❌ Trouble connecting to the AI.");
+      if (!res.ok) throw new Error("❌ Trouble connecting to AI.");
       const data = await res.json();
       const aiText =
         data?.candidates?.[0]?.content?.parts?.[0]?.text ||
         "🤖 Hmm, I didn’t catch that. Could you try again?";
 
       setResponse(aiText);
+      setChatHistory([...history, { role: "assistant", text: aiText }]);
       speak(aiText);
     } catch (error) {
-      setError("⚠️ Something went wrong. Let’s try that again!");
+      setError("⚠️ Something went wrong.");
     } finally {
       setProcessing(false);
     }
@@ -92,7 +88,6 @@ const AIChat = () => {
     speech.volume = 1;
     speech.rate = 0.85;
     speech.pitch = 1.1;
-    speech.onend = () => startListening();
     window.speechSynthesis.speak(speech);
   };
 
@@ -121,9 +116,15 @@ const AIChat = () => {
 
         <div className="bg-white/10 p-5 rounded-xl border border-white/20 shadow-lg z-10">
           <h2 className="text-lg font-semibold mb-3 text-indigo-300">
-            Your Response:
+            Complete Your Task:
           </h2>
-          <p className="text-sm">{response || "Start speaking to get a response!"}</p>
+          <ul className="text-sm space-y-1">
+            <li>✅ How are you?</li>
+            <li>✅ Where have you been all this time?</li>
+            <li>✅ What are you doing these days?</li>
+            <li>✅ Would you like to share any new experiences?</li>
+            <li>✅ What are your plans for the coming days?</li>
+          </ul>
         </div>
 
         <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md z-10">
