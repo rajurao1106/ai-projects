@@ -4,14 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import english_teacher from "../../images/english-teacher.jpg";
 
-const questions = [
-  "How are you?",
-  "Where have you been all this time?",
-  "What are you doing these days?",
-  "Would you like to share any new experiences?",
-  "What are your plans for the coming days?",
-];
-
 const AIChat = () => {
   const [listening, setListening] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -19,8 +11,8 @@ const AIChat = () => {
   const [error, setError] = useState(null);
   const [recognition, setRecognition] = useState(null);
   const [chatHistory, setChatHistory] = useState([]);
-  const [answeredQuestions, setAnsweredQuestions] = useState([]);
-  
+  const [isMicHovered, setIsMicHovered] = useState(false);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const SpeechRecognition =
@@ -46,7 +38,6 @@ const AIChat = () => {
       setProcessing(true);
       const updatedChat = [...chatHistory, { role: "user", text: userInput }];
       setChatHistory(updatedChat);
-      checkCompletion(userInput);
       await fetchAIResponse(updatedChat);
     };
     recognition.onerror = (e) => {
@@ -56,15 +47,6 @@ const AIChat = () => {
     recognition.onend = () => setListening(false);
     recognition.start();
   }, [recognition, chatHistory]);
-
-  const checkCompletion = (userInput) => {
-    const matchedQuestion = questions.find((q) =>
-      userInput.toLowerCase().includes(q.toLowerCase())
-    );
-    if (matchedQuestion && !answeredQuestions.includes(matchedQuestion)) {
-      setAnsweredQuestions([...answeredQuestions, matchedQuestion]);
-    }
-  };
 
   const fetchAIResponse = async (history) => {
     try {
@@ -106,13 +88,13 @@ const AIChat = () => {
     speech.volume = 1;
     speech.rate = 0.85;
     speech.pitch = 1.1;
+
+    // When AI finishes speaking, restart the mic automatically
     speech.onend = () => {
-      if (answeredQuestions.length === questions.length) {
-        speak("Well done! You completed all five questions in English.");
-      } else {
-        setTimeout(() => startListening(), 1000);
-      }
+      console.log("AI finished speaking, restarting mic...");
+      setTimeout(() => startListening(), 1000); // Restart mic after a delay
     };
+
     window.speechSynthesis.speak(speech);
   };
 
@@ -134,7 +116,7 @@ const AIChat = () => {
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="text-4xl text-center font-extrabold mb-8 bg-gradient-to-r from-indigo-400 via-blue-500 to-teal-400 bg-clip-text text-transparent"
+          className="text-4xl md:text-4xl text-center font-extrabold mb-8 z-10 bg-gradient-to-r from-indigo-400 via-blue-500 to-teal-400 bg-clip-text text-transparent"
         >
           Your AI English Teacher
         </motion.h1>
@@ -144,15 +126,12 @@ const AIChat = () => {
             Complete Your Task:
           </h2>
           <ul className="text-sm space-y-1">
-            {questions.map((q, i) => (
-              <li key={i} className={answeredQuestions.includes(q) ? "text-green-400" : ""}>
-                {answeredQuestions.includes(q) ? "✅ " : "❌ "}{q}
-              </li>
-            ))}
+            <li>✅ How are you?</li>
+            <li>✅ Where have you been all this time?</li>
+            <li>✅ What are you doing these days?</li>
+            <li>✅ Would you like to share any new experiences?</li>
+            <li>✅ What are your plans for the coming days?</li>
           </ul>
-          {answeredQuestions.length === questions.length && (
-            <p className="text-green-400 mt-4">🎉 Well done! You completed all five questions in English.</p>
-          )}
         </div>
 
         <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md z-10">
@@ -161,11 +140,15 @@ const AIChat = () => {
               <motion.button
                 key="mic-button"
                 onClick={startListening}
-                whileHover={{ scale: 1.1 }}
+                onMouseEnter={() => setIsMicHovered(true)}
+                onMouseLeave={() => setIsMicHovered(false)}
+                whileHover={{ scale: 1.1, boxShadow: "0 0 20px rgba(79, 70, 229, 0.6)" }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-5 rounded-full shadow-lg transition-all duration-300 text-lg font-medium"
+                className="relative bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-5 rounded-full shadow-lg transition-all duration-300 flex items-center gap-4 text-lg font-medium"
+                aria-label="Start speaking to your English teacher"
               >
-                🎤 Start Speaking
+                <span className="text-2xl animate-pulse">🎤</span>
+                <span>Start Speaking</span>
               </motion.button>
             )}
           </AnimatePresence>
