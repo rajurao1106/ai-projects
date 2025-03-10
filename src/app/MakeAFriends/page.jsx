@@ -132,7 +132,7 @@ const AIChat = () => {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="text-4xl md:text-4xl text-center font-extrabold mb-8 z-10 bg-gradient-to-r from-indigo-400 via-blue-500 to-teal-400 bg-clip-text text-transparent"
         >
-          आपका AI हिंदी शायर
+          Your AI English Teacher
         </motion.h1>
 
         {/* 📝 Suggested Prompts */}
@@ -141,10 +141,17 @@ const AIChat = () => {
             पूछिए कुछ मज़ेदार:
           </h2>
           <ul className="text-sm space-y-1">
-            <li>✅ प्यार पर एक शायरी सुनाओ।</li>
-            <li>✅ दोस्ती के बारे में कुछ लिखो।</li>
-            <li>✅ बारिश पर कोई कविता सुनाओ।</li>
-            <li>✅ जीवन पर कोई खूबसूरत शायरी कहो।</li>
+            <li>✅ Hey! What’s your plan for the weekend?</li>
+            <li>✅ What time are you planning to go?</li>
+            <li>✅ Have you watched the new superhero movie?</li>
+            <li>✅ Should I watch it?</li>
+            <li>✅ How’s your exam preparation going?</li>
+            <li>✅ Want to study together tomorrow?</li>
+            <li>✅ Let’s plan a trip during the holidays!</li>
+            <li>✅ Where do you want to go?</li>
+            <li>✅ Can you tell me a joke?</li>
+            <li>✅ How do I improve my English pronunciation?</li>
+            <li>✅ Tell me a fun fact!</li>
           </ul>
         </div>
 
@@ -157,7 +164,10 @@ const AIChat = () => {
                 onClick={startListening}
                 onMouseEnter={() => setIsMicHovered(true)}
                 onMouseLeave={() => setIsMicHovered(false)}
-                whileHover={{ scale: 1.1, boxShadow: "0 0 20px rgba(79, 70, 229, 0.6)" }}
+                whileHover={{
+                  scale: 1.1,
+                  boxShadow: "0 0 20px rgba(79, 70, 229, 0.6)",
+                }}
                 whileTap={{ scale: 0.95 }}
                 className="relative bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-5 rounded-full shadow-lg transition-all duration-300 flex items-center gap-4 text-lg font-medium"
                 aria-label="Start speaking to your AI Shayar"
