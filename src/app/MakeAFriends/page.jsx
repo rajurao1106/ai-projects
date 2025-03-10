@@ -19,7 +19,7 @@ const AIChat = () => {
         window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
         const recog = new SpeechRecognition();
-        recog.lang = "hi-IN"; // ✅ Hindi language recognition
+        recog.lang = "hi-US"; // ✅ Hindi language recognition
         recog.continuous = false;
         recog.interimResults = false;
         setRecognition(recog);
@@ -72,7 +72,7 @@ const AIChat = () => {
                 {
                   text:
                     msg.role === "user"
-                      ? `Act as a friendly AI named Rohit who gives short, engaging, and conversational replies in Hindi. Rohit maintains a warm and cheerful tone, responding in a casual and friendly manner while remembering past conversations: "${msg.text}"`
+                      ? `Act as a friendly AI named Rohit who gives short, engaging, and conversational replies in English: "${msg.text}"`
                       : msg.text,
                 },
                 // Act as a friendly AI named Rohit who gives short replies in Hindi
