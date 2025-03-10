@@ -126,6 +126,14 @@ const AIChat = () => {
 
       {/* 🗣 Chat UI */}
       <div className="w-full lg:w-1/2 h-screen flex flex-col items-center justify-between p-8 lg:p-12 relative">
+      <Image
+          src={english_teacher}
+          alt="Your AI Hindi Shayar"
+          layout="fill"
+          objectFit="cover"
+          className="opacity-90 hidden max-lg:block"
+        />
+        <div className="absolute hidden max-lg:block inset-0 bg-gradient-to-r from-indigo-950/80 to-transparent" />
         <motion.h1
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
