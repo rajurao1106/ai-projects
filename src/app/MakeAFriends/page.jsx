@@ -65,7 +65,7 @@ const AIChat = () => {
           body: JSON.stringify({
             contents: history.map((msg) => ({
               role: msg.role,
-              parts: [{ text: msg.text }],
+              parts: [{ text: "act as shayar" }],
             })),
           }),
         }
