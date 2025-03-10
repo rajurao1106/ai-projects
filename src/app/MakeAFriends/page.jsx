@@ -19,7 +19,7 @@ const AIChat = () => {
         window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
         const recog = new SpeechRecognition();
-        recog.lang = "en-US";
+        recog.lang = "hi-IN"; // ✅ Hindi language recognition
         recog.continuous = false;
         recog.interimResults = false;
         setRecognition(recog);
@@ -31,7 +31,10 @@ const AIChat = () => {
 
   // 🎤 Start listening to user input
   const startListening = useCallback(() => {
-    if (!recognition) return;
+    if (!recognition) {
+      setError("⚠️ Speech recognition is not initialized.");
+      return;
+    }
     setError(null);
     recognition.onstart = () => setListening(true);
 
@@ -52,7 +55,7 @@ const AIChat = () => {
     recognition.start();
   }, [recognition, chatHistory]);
 
-  // 🤖 Fetch AI response with full conversation history
+  // 🤖 Fetch AI response with full conversation history (Shayar Mode)
   const fetchAIResponse = async (history) => {
     try {
       const res = await fetch(
@@ -65,7 +68,14 @@ const AIChat = () => {
           body: JSON.stringify({
             contents: history.map((msg) => ({
               role: msg.role,
-              parts: [{ text: "act as shayar" }],
+              parts: [
+                {
+                  text:
+                    msg.role === "user"
+                      ? `Act as a Hindi poet (Shayar) and reply in beautiful Hindi poetry based on: "${msg.text}"`
+                      : msg.text,
+                },
+              ],
             })),
           }),
         }
@@ -75,22 +85,23 @@ const AIChat = () => {
       const data = await res.json();
       const aiText =
         data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "🤖 Hmm, I didn’t catch that. Could you try again?";
+        "🤖 मुझे समझ नहीं आया, कृपया फिर से कोशिश करें।";
 
       setResponse(aiText);
       setChatHistory([...history, { role: "assistant", text: aiText }]); // ✅ AI Response added to history
       speak(aiText);
     } catch (error) {
-      setError("⚠️ Something went wrong.");
+      console.error("AI API Error:", error);
+      setError(`⚠️ ${error.message || "कुछ गलत हो गया।"}`);
     } finally {
       setProcessing(false);
     }
   };
 
-  // 🔊 AI Speaks Response
+  // 🔊 AI Speaks Response (Hindi)
   const speak = (text) => {
     const speech = new SpeechSynthesisUtterance(text);
-    speech.lang = "en-US";
+    speech.lang = "hi-IN"; // ✅ Corrected for Hindi speech synthesis
     speech.volume = 1;
     speech.rate = 0.85;
     speech.pitch = 1.1;
@@ -103,7 +114,7 @@ const AIChat = () => {
       <div className="relative hidden lg:block lg:w-1/2">
         <Image
           src={english_teacher}
-          alt="Your AI English Teacher"
+          alt="Your AI Hindi Shayar"
           layout="fill"
           objectFit="cover"
           className="opacity-90"
@@ -119,19 +130,19 @@ const AIChat = () => {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="text-4xl md:text-4xl text-center font-extrabold mb-8 z-10 bg-gradient-to-r from-indigo-400 via-blue-500 to-teal-400 bg-clip-text text-transparent"
         >
-          Your AI English Teacher
+          आपका AI हिंदी शायर
         </motion.h1>
 
         {/* 📝 Suggested Prompts */}
         <div className="bg-white/10 p-5 rounded-xl border border-white/20 shadow-lg z-10">
           <h2 className="text-lg font-semibold mb-3 text-indigo-300">
-            Try Asking:
+            पूछिए कुछ मज़ेदार:
           </h2>
           <ul className="text-sm space-y-1">
-            <li>✅ What’s the meaning of life?</li>
-            <li>✅ Can you tell me a joke?</li>
-            <li>✅ How do I improve my English pronunciation?</li>
-            <li>✅ Tell me a fun fact!</li>
+            <li>✅ प्यार पर एक शायरी सुनाओ।</li>
+            <li>✅ दोस्ती के बारे में कुछ लिखो।</li>
+            <li>✅ बारिश पर कोई कविता सुनाओ।</li>
+            <li>✅ जीवन पर कोई खूबसूरत शायरी कहो।</li>
           </ul>
         </div>
 
@@ -147,10 +158,10 @@ const AIChat = () => {
                 whileHover={{ scale: 1.1, boxShadow: "0 0 20px rgba(79, 70, 229, 0.6)" }}
                 whileTap={{ scale: 0.95 }}
                 className="relative bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-5 rounded-full shadow-lg transition-all duration-300 flex items-center gap-4 text-lg font-medium"
-                aria-label="Start speaking to your AI teacher"
+                aria-label="Start speaking to your AI Shayar"
               >
                 <span className="text-2xl animate-pulse">🎤</span>
-                <span>Start Speaking</span>
+                <span>शायरी सुनें</span>
               </motion.button>
             )}
           </AnimatePresence>
