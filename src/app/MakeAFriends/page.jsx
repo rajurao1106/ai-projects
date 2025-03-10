@@ -72,7 +72,7 @@ const AIChat = () => {
                 {
                   text:
                     msg.role === "user"
-                      ? `Act as an English teacher. Improve my grammar, vocabulary, pronunciation, and sentence structure with lessons, quizzes, and real-life examples. Correct my mistakes. Start with a lesson on the Solar System.: "${msg.text}"`
+                      ? `Act as an English teacher. Improve my grammar, vocabulary, pronunciation, and sentence structure with lessons, quizzes, and real-life examples. Correct my mistakes: "${msg.text}"`
                       : msg.text,
                 },
                ],
