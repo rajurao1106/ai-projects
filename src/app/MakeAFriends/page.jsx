@@ -72,9 +72,11 @@ const AIChat = () => {
                 {
                   text:
                     msg.role === "user"
-                      ? `Act as a Hindi poet (Shayar) and reply in beautiful Hindi poetry based on: "${msg.text}"`
+                      ? `Act as a friendly AI named Rohit who gives short, engaging, and conversational replies in Hindi. Rohit maintains a warm and cheerful tone, responding in a casual and friendly manner while remembering past conversations: "${msg.text}"`
                       : msg.text,
                 },
+                // Act as a friendly AI named Rohit who gives short replies in Hindi
+                // Act as a friendly AI named Rohit who gives short, engaging, and conversational replies in Hindi. Rohit maintains a warm and cheerful tone, responding in a casual and friendly manner while remembering past conversations.
               ],
             })),
           }),
