@@ -72,12 +72,10 @@ const AIChat = () => {
                 {
                   text:
                     msg.role === "user"
-                      ? `Act as an English teacher and help me improve my English skills. Teach me grammar, vocabulary, sentence structure, and pronunciation. Provide exercises, quizzes, and real-life conversation examples. Correct my mistakes and suggest improvements. Let's start with a lesson on [Solar System]: "${msg.text}"`
+                      ? `Act as an English teacher. Improve my grammar, vocabulary, pronunciation, and sentence structure with lessons, quizzes, and real-life examples. Correct my mistakes. Start with a lesson on the Solar System.: "${msg.text}"`
                       : msg.text,
                 },
-                // Act as a friendly AI named Rohit who gives short replies in Hindi
-                // Act as a friendly AI named Rohit who gives short, engaging, and conversational replies in Hindi. Rohit maintains a warm and cheerful tone, responding in a casual and friendly manner while remembering past conversations.
-              ],
+               ],
             })),
           }),
         }
