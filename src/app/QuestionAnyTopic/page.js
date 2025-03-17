@@ -4,18 +4,55 @@ import { motion } from "framer-motion";
 
 const QuestionAnyTopic = () => {
   const [topic, setTopic] = useState("");
-  const [response, setResponse] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
 
-  const fetchAIResponse = async (history) => {
+  const speakText = (text) => {
+    const speech = new SpeechSynthesisUtterance(text);
+    speech.lang = "en-US";
+    speech.rate = 1;
+    window.speechSynthesis.speak(speech);
+  };
+
+  const startListening = () => {
+    if (!("webkitSpeechRecognition" in window)) {
+      setError("⚠️ Your browser does not support speech recognition.");
+      return;
+    }
+
+    setIsListening(true);
+    setError(null);
+
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onresult = async (event) => {
+      const userAnswer = event.results[0][0].transcript;
+      setIsListening(false);
+      setChatHistory((prev) => [...prev, { role: "user", text: userAnswer }]);
+      checkAnswer(userAnswer);
+    };
+
+    recognition.onerror = (event) => {
+      setIsListening(false);
+      setError(`⚠️ Speech recognition error: ${event.error}`);
+    };
+
+    recognition.start();
+  };
+
+  const fetchAIQuestion = async () => {
     if (!topic.trim()) {
       setError("⚠️ Please enter a topic before asking.");
       return;
     }
     setError(null);
     setIsLoading(true);
+    setChatHistory([]); // Clear previous chat
 
     if (!process.env.NEXT_PUBLIC_API_KEY) {
       setError("⚠️ API key is missing. Please check your environment variables.");
@@ -24,19 +61,9 @@ const QuestionAnyTopic = () => {
     }
 
     const formattedHistory = [
-      ...history.map((msg) => ({
-        role: msg.role,
-        parts: [{ text: msg.text }],
-      })),
       {
         role: "user",
-        parts: [
-          {
-            text: `Ask me a question related to \"${topic}\". 
-            - If my answer is correct, then say \"it is correct\". 
-            - If my answer is incorrect, explain why it is wrong and ask the same question again in a simpler way.`,
-          },
-        ],
+        parts: [{ text: `Ask me a question related to "${topic}".` }],
       },
     ];
 
@@ -45,9 +72,7 @@ const QuestionAnyTopic = () => {
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_API_KEY}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ contents: formattedHistory }),
         }
       );
@@ -58,10 +83,12 @@ const QuestionAnyTopic = () => {
       }
 
       const data = await res.json();
-      const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
-        "⚠️ AI could not generate a response.";
+      const aiQuestion =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+        "⚠️ AI could not generate a question.";
 
-      setChatHistory([...history, { role: "assistant", text: aiText }]);
+      setChatHistory([{ role: "assistant", text: aiQuestion }]);
+      speakText(aiQuestion); // AI asks the question via audio
     } catch (error) {
       console.error("AI API Error:", error);
       setError(`⚠️ ${error.message}`);
@@ -70,12 +97,48 @@ const QuestionAnyTopic = () => {
     }
   };
 
-  const handleUserResponse = (e) => {
-    if (e.key === "Enter" && response.trim()) {
-      const updatedChat = [...chatHistory, { role: "user", text: response.trim() }];
-      setChatHistory(updatedChat);
-      setResponse("");
-      fetchAIResponse(updatedChat);
+  const checkAnswer = async (userAnswer) => {
+    const lastQuestion = chatHistory[chatHistory.length - 1]?.text;
+    if (!lastQuestion) return;
+
+    const formattedHistory = [
+      { role: "assistant", parts: [{ text: lastQuestion }] },
+      { role: "user", parts: [{ text: userAnswer }] },
+      {
+        role: "user",
+        parts: [
+          {
+            text: `Is my answer "${userAnswer}" correct? If yes, say "✅ Correct!". If incorrect, explain why and ask again in simpler terms.`,
+          },
+        ],
+      },
+    ];
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: formattedHistory }),
+        }
+      );
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`API Error: ${res.status} - ${errorText}`);
+      }
+
+      const data = await res.json();
+      const aiResponse =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
+        "⚠️ AI could not generate a response.";
+
+      setChatHistory((prev) => [...prev, { role: "assistant", text: aiResponse }]);
+      speakText(aiResponse); // AI responds with audio
+    } catch (error) {
+      console.error("AI API Error:", error);
+      setError(`⚠️ ${error.message}`);
     }
   };
 
@@ -87,7 +150,7 @@ const QuestionAnyTopic = () => {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="text-4xl font-extrabold text-center mb-6 bg-gradient-to-r from-indigo-400 via-blue-500 to-teal-400 bg-clip-text text-transparent"
       >
-        AI Topic-Based Questioning
+        AI Voice Quiz System 🎤
       </motion.h1>
 
       <input
@@ -99,13 +162,13 @@ const QuestionAnyTopic = () => {
       />
 
       <motion.button
-        onClick={() => fetchAIResponse(chatHistory)}
+        onClick={fetchAIQuestion}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full shadow-lg text-lg font-medium mb-4"
         disabled={isLoading}
       >
-        {isLoading ? "Loading..." : "Ask"}
+        {isLoading ? "Loading..." : "Start Quiz 🎙️"}
       </motion.button>
 
       {error && <div className="text-red-500 mb-4">{error}</div>}
@@ -123,14 +186,18 @@ const QuestionAnyTopic = () => {
         ))}
       </div>
 
-      <input
-        type="text"
-        placeholder="Your answer..."
-        value={response}
-        onChange={(e) => setResponse(e.target.value)}
-        onKeyDown={handleUserResponse}
-        className="w-full max-w-md p-3 text-lg text-white rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 mt-4"
-      />
+      {chatHistory.length > 0 && (
+        <motion.button
+          onClick={startListening}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          className={`mt-4 px-6 py-3 rounded-full shadow-lg text-lg font-medium ${
+            isListening ? "bg-red-600" : "bg-green-600"
+          } text-white`}
+        >
+          {isListening ? "Listening... 🎤" : "Answer with Voice 🎙️"}
+        </motion.button>
+      )}
     </div>
   );
 };
