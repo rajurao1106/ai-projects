@@ -63,7 +63,7 @@ const QuestionAnyTopic = () => {
     const formattedHistory = [
       {
         role: "user",
-        parts: [{ text: `Ask me a question related to "${topic}".` }],
+        parts: [{ text: `Ask me a basic question related to "${topic}".` }],
       },
     ];
 
@@ -150,7 +150,7 @@ const QuestionAnyTopic = () => {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="text-4xl font-extrabold text-center mb-6 bg-gradient-to-r from-indigo-400 via-blue-500 to-teal-400 bg-clip-text text-transparent"
       >
-        AI Voice Quiz System 🎤
+        AI Topic-Based Questioning
       </motion.h1>
 
       <input
@@ -168,7 +168,7 @@ const QuestionAnyTopic = () => {
         className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full shadow-lg text-lg font-medium mb-4"
         disabled={isLoading}
       >
-        {isLoading ? "Loading..." : "Start Quiz 🎙️"}
+        {isLoading ? "Loading..." : "Ask Quetions"}
       </motion.button>
 
       {error && <div className="text-red-500 mb-4">{error}</div>}
