@@ -1,6 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
+import ai_teacher from '@/images/ai-teacher.jpg'
 
 const QuestionAnyTopic = () => {
   const [topic, setTopic] = useState("");
@@ -144,6 +146,14 @@ const QuestionAnyTopic = () => {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-indigo-950 via-gray-900 to-blue-900 text-gray-100 flex flex-col items-center justify-center p-8">
+      <Image
+                src={ai_teacher}
+                alt="Your AI Hindi Shayar"
+                layout="fill"
+          objectFit="cover"
+                className="absolute opacity-20"
+              />
+      <div className="z-0 flex flex-col items-center justify-center">
       <motion.h1
         initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -198,6 +208,7 @@ const QuestionAnyTopic = () => {
           {isListening ? "Listening... 🎤" : "Answer with Voice 🎙️"}
         </motion.button>
       )}
+      </div>
     </div>
   );
 };
