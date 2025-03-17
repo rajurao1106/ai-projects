@@ -20,6 +20,13 @@ export default function Homepage() {
         </h1>
 
         <div className="space-y-4">
+        <Link
+            href="/QuestionAnyTopic"
+            className="flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-xl font-medium shadow-md transition-all duration-200 transform hover:scale-105 hover:shadow-xl"
+          >
+            <Sparkles className="h-5 w-5" />
+            Question Any Topic For Answer
+          </Link>
           <Link
             href="/MeaningYourName"
             className="flex items-center justify-center gap-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-xl font-medium shadow-md transition-all duration-200 transform hover:scale-105 hover:shadow-xl"
