@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ai_teacher from "../../images/ai-teacher.jpg";
 import Image from "next/image";
@@ -11,19 +11,25 @@ const QuestionAnyTopic = () => {
   const [chatHistory, setChatHistory] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [definition, setDefinition] = useState(null);
+  const [definition, setDefinition] = useState("");
   const [answer, setAnswer] = useState("");
-  const [isListening, setIsListening] = useState(false);
+  const [speechSynthesisInstance, setSpeechSynthesisInstance] = useState(null);
 
-  let speechSynthesisInstance = window.speechSynthesis;
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setSpeechSynthesisInstance(window.speechSynthesis);
+    }
+  }, []);
 
   // Text-to-speech function
   const speakText = (text) => {
-    if (speechSynthesisInstance.speaking) speechSynthesisInstance.cancel();
+    if (speechSynthesisInstance && speechSynthesisInstance.speaking) {
+      speechSynthesisInstance.cancel();
+    }
     const speech = new SpeechSynthesisUtterance(text);
     speech.lang = "en-US";
     speech.rate = 1;
-    speechSynthesisInstance.speak(speech);
+    speechSynthesisInstance?.speak(speech);
   };
 
   // Fetch definition from API
@@ -61,7 +67,7 @@ const QuestionAnyTopic = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [topic]);
+  }, [topic, speechSynthesisInstance]);
 
   // Fetch AI-generated question
   const fetchAIQuestion = useCallback(async () => {
@@ -71,7 +77,6 @@ const QuestionAnyTopic = () => {
     }
     setError(null);
     setIsLoading(true);
-    setChatHistory([]);
 
     try {
       const res = await fetch(
@@ -99,14 +104,14 @@ const QuestionAnyTopic = () => {
         data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
         "No question available.";
 
-      setChatHistory([{ role: "assistant", text: aiQuestion }]);
+      setChatHistory((prev) => [...prev, { role: "assistant", text: aiQuestion }]);
       speakText(aiQuestion);
     } catch (error) {
       setError(`⚠️ ${error.message}`);
     } finally {
       setIsLoading(false);
     }
-  }, [definition]);
+  }, [definition, speechSynthesisInstance]);
 
   // Validate user answer using AI
   const checkAnswer = async (userAnswer) => {
@@ -152,8 +157,8 @@ const QuestionAnyTopic = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col  items-center p-8 text-white bg-blue-950">
-       <Image 
+    <div className="min-h-screen flex flex-col items-center p-8 text-white bg-blue-950 relative">
+      <Image 
         src={ai_teacher} 
         alt="AI Teacher" 
         layout="fill" 
@@ -165,8 +170,7 @@ const QuestionAnyTopic = () => {
         Ask AI Any Topic
       </motion.h1>
 
-      <Card className="p-6 w-full max-w-lg  bg-[#5050501f] z-10"> 
-        {/* overflow-scroll h-[80vh] */}
+      <Card className="p-6 w-full max-w-lg bg-[#5050501f] z-10">
         <input
           type="text"
           value={topic}
@@ -202,11 +206,9 @@ const QuestionAnyTopic = () => {
             {chatHistory.map((msg, index) => (
               <motion.p
                 key={index}
-                className={`p-3 rounded text-white  ${
-                  msg.role === "user" ? "bg-gray-600 " : "bg-blue-600"
+                className={`p-3 rounded text-white ${
+                  msg.role === "user" ? "bg-gray-600" : "bg-blue-600"
                 }`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
               >
                 {msg.text}
               </motion.p>
