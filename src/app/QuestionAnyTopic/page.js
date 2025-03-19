@@ -1,73 +1,37 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
-import ai_teacher from '@/images/ai-teacher.jpg'
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const QuestionAnyTopic = () => {
   const [topic, setTopic] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [definition, setDefinition] = useState(null);
+  const [answer, setAnswer] = useState("");
   const [isListening, setIsListening] = useState(false);
 
+  let speechSynthesisInstance = window.speechSynthesis;
+
+  // Text-to-speech function
   const speakText = (text) => {
+    if (speechSynthesisInstance.speaking) speechSynthesisInstance.cancel();
     const speech = new SpeechSynthesisUtterance(text);
     speech.lang = "en-US";
     speech.rate = 1;
-    window.speechSynthesis.speak(speech);
+    speechSynthesisInstance.speak(speech);
   };
 
-  const startListening = () => {
-    if (!("webkitSpeechRecognition" in window)) {
-      setError("⚠️ Your browser does not support speech recognition.");
-      return;
-    }
-
-    setIsListening(true);
-    setError(null);
-
-    const recognition = new webkitSpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    recognition.onresult = async (event) => {
-      const userAnswer = event.results[0][0].transcript;
-      setIsListening(false);
-      setChatHistory((prev) => [...prev, { role: "user", text: userAnswer }]);
-      checkAnswer(userAnswer);
-    };
-
-    recognition.onerror = (event) => {
-      setIsListening(false);
-      setError(`⚠️ Speech recognition error: ${event.error}`);
-    };
-
-    recognition.start();
-  };
-
-  const fetchAIQuestion = async () => {
+  // Fetch definition from API
+  const fetchDefinition = useCallback(async () => {
     if (!topic.trim()) {
-      setError("⚠️ Please enter a topic before asking.");
+      setError("⚠️ Please enter a topic.");
       return;
     }
     setError(null);
     setIsLoading(true);
-    setChatHistory([]); // Clear previous chat
-
-    if (!process.env.NEXT_PUBLIC_API_KEY) {
-      setError("⚠️ API key is missing. Please check your environment variables.");
-      setIsLoading(false);
-      return;
-    }
-
-    const formattedHistory = [
-      {
-        role: "user",
-        parts: [{ text: `Ask me a basic question related to "${topic}".` }],
-      },
-    ];
 
     try {
       const res = await fetch(
@@ -75,46 +39,33 @@ const QuestionAnyTopic = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents: formattedHistory }),
+          body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: `Define ${topic}.` }] }] }),
         }
       );
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`API Error: ${res.status} - ${errorText}`);
-      }
+      if (!res.ok) throw new Error("Failed to fetch definition.");
 
       const data = await res.json();
-      const aiQuestion =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
-        "⚠️ AI could not generate a question.";
-
-      setChatHistory([{ role: "assistant", text: aiQuestion }]);
-      speakText(aiQuestion); // AI asks the question via audio
+      const aiDefinition = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Definition not found.";
+      
+      setDefinition(aiDefinition);
+      speakText(aiDefinition);
     } catch (error) {
-      console.error("AI API Error:", error);
       setError(`⚠️ ${error.message}`);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [topic]);
 
-  const checkAnswer = async (userAnswer) => {
-    const lastQuestion = chatHistory[chatHistory.length - 1]?.text;
-    if (!lastQuestion) return;
-
-    const formattedHistory = [
-      { role: "assistant", parts: [{ text: lastQuestion }] },
-      { role: "user", parts: [{ text: userAnswer }] },
-      {
-        role: "user",
-        parts: [
-          {
-            text: `Is my answer "${userAnswer}" correct? If yes, say "✅ Correct!". If incorrect, explain why and ask again in simpler terms.`,
-          },
-        ],
-      },
-    ];
+  // Fetch AI-generated question
+  const fetchAIQuestion = useCallback(async () => {
+    if (!definition) {
+      setError("⚠️ Get the definition first.");
+      return;
+    }
+    setError(null);
+    setIsLoading(true);
+    setChatHistory([]);
 
     try {
       const res = await fetch(
@@ -122,93 +73,111 @@ const QuestionAnyTopic = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contents: formattedHistory }),
+          body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: `Ask me a basic question about ${definition}.` }] }] }),
         }
       );
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`API Error: ${res.status} - ${errorText}`);
-      }
+      if (!res.ok) throw new Error("Failed to fetch question.");
 
       const data = await res.json();
-      const aiResponse =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
-        "⚠️ AI could not generate a response.";
-
-      setChatHistory((prev) => [...prev, { role: "assistant", text: aiResponse }]);
-      speakText(aiResponse); // AI responds with audio
+      const aiQuestion = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "No question available.";
+      
+      setChatHistory([{ role: "assistant", text: aiQuestion }]);
+      speakText(aiQuestion);
     } catch (error) {
-      console.error("AI API Error:", error);
+      setError(`⚠️ ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [definition]);
+
+  // Validate user answer using AI
+  const checkAnswer = async (userAnswer) => {
+    if (!chatHistory.length) return;
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: `Evaluate the following: Definition - ${definition}, User's Answer - ${userAnswer}. If the answer is correct or closely related, respond with 'It is correct.' If it is incorrect, say 'It is not correct' and provide the correct answer.` }] }] }),
+        }
+      );
+
+      if (!res.ok) throw new Error("Failed to validate answer.");
+
+      const data = await res.json();
+      const aiResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Could not validate answer.";
+      
+      setChatHistory((prev) => [...prev, { role: "user", text: userAnswer }, { role: "assistant", text: aiResponse }]);
+      speakText(aiResponse);
+    } catch (error) {
       setError(`⚠️ ${error.message}`);
     }
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-indigo-950 via-gray-900 to-blue-900 text-gray-100 flex flex-col items-center justify-center p-8">
-      <Image
-                src={ai_teacher}
-                alt="Your AI Hindi Shayar"
-                layout="fill"
-          objectFit="cover"
-                className="absolute opacity-20"
-              />
-      <div className="z-0 flex flex-col items-center justify-center">
-      <motion.h1
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className="text-4xl font-extrabold text-center mb-6 bg-gradient-to-r from-indigo-400 via-blue-500 to-teal-400 bg-clip-text text-transparent"
-      >
-        AI Topic-Based Questioning
-      </motion.h1>
+    <div className="min-h-screen flex flex-col items-center p-8 text-white bg-gray-900">
+      <motion.h1 className="text-3xl font-bold mb-6">Ask AI Any Topic</motion.h1>
 
-      <input
-        type="text"
-        placeholder="Enter a topic..."
-        value={topic}
-        onChange={(e) => setTopic(e.target.value)}
-        className="w-full max-w-md p-3 text-lg text-white rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 mb-4"
-      />
-
-      <motion.button
-        onClick={fetchAIQuestion}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full shadow-lg text-lg font-medium mb-4"
-        disabled={isLoading}
-      >
-        {isLoading ? "Loading..." : "Ask Quetions"}
-      </motion.button>
-
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-
-      <div className="w-full max-w-md">
-        {chatHistory.map((msg, index) => (
-          <div
-            key={index}
-            className={`p-3 m-2 rounded-lg ${
-              msg.role === "user" ? "bg-gray-700 text-white" : "bg-indigo-600 text-white"
-            }`}
-          >
-            {msg.text}
-          </div>
-        ))}
-      </div>
-
-      {chatHistory.length > 0 && (
-        <motion.button
-          onClick={startListening}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          className={`mt-4 px-6 py-3 rounded-full shadow-lg text-lg font-medium ${
-            isListening ? "bg-red-600" : "bg-green-600"
-          } text-white`}
+      <Card className="p-6 w-full max-w-lg bg-gray-800">
+        <input 
+          type="text" 
+          value={topic} 
+          onChange={(e) => setTopic(e.target.value)} 
+          placeholder="Enter a topic..." 
+          className="w-full p-3 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500"
+        />
+        
+        <Button 
+          onClick={fetchDefinition} 
+          disabled={isLoading} 
+          className="mt-4 w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-500"
         >
-          {isListening ? "Listening... 🎤" : "Answer with Voice 🎙️"}
-        </motion.button>
-      )}
-      </div>
+          {isLoading ? "Loading..." : "Get Definition"}
+        </Button>
+
+        {definition && (
+          <motion.p className="mt-4 p-3 bg-gray-700 rounded">
+            {definition}
+          </motion.p>
+        )}
+
+        <Button 
+          onClick={fetchAIQuestion} 
+          disabled={isLoading || !definition}
+          className="mt-4 w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-500"
+        >
+          {isLoading ? "Loading..." : "Ask Questions"}
+        </Button>
+
+        {chatHistory.length > 0 && (
+          <div className="mt-6 space-y-2">
+            {chatHistory.map((msg, index) => (
+              <motion.p 
+                key={index} 
+                className={`p-3 rounded ${msg.role === "user" ? "bg-gray-600" : "bg-blue-600"}`}
+                initial={{ opacity: 0, y: 10 }} 
+                animate={{ opacity: 1, y: 0 }}
+              >
+                {msg.text}
+              </motion.p>
+            ))}
+          </div>
+        )}
+
+        <input 
+          type="text"  
+          placeholder="Write your answer..." 
+          className="mt-4 w-full p-3 rounded bg-gray-700 text-white focus:ring-2 focus:ring-yellow-500"
+          value={answer}
+          onChange={(e) => setAnswer(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && checkAnswer(answer)}
+        />
+      </Card>
+
+      {error && <p className="text-red-500 mt-4">{error}</p>}
     </div>
   );
 };
