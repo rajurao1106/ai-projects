@@ -3,8 +3,8 @@ import React, { useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import ai_teacher from "../../images/ai-teacher.jpg";
 import Image from "next/image";
+import ai_teacher from "../../images/ai-teacher.jpg"; // Correct Next.js image import
 
 const QuestionAnyTopic = () => {
   const [topic, setTopic] = useState("");
@@ -13,23 +13,17 @@ const QuestionAnyTopic = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [definition, setDefinition] = useState("");
   const [answer, setAnswer] = useState("");
-  const [speechSynthesisInstance, setSpeechSynthesisInstance] = useState(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setSpeechSynthesisInstance(window.speechSynthesis);
-    }
-  }, []);
 
   // Text-to-speech function
   const speakText = (text) => {
-    if (speechSynthesisInstance && speechSynthesisInstance.speaking) {
-      speechSynthesisInstance.cancel();
+    if (typeof window !== "undefined") {
+      const synth = window.speechSynthesis;
+      if (synth.speaking) synth.cancel();
+      const speech = new SpeechSynthesisUtterance(text);
+      speech.lang = "en-US";
+      speech.rate = 1;
+      synth.speak(speech);
     }
-    const speech = new SpeechSynthesisUtterance(text);
-    speech.lang = "en-US";
-    speech.rate = 1;
-    speechSynthesisInstance?.speak(speech);
   };
 
   // Fetch definition from API
@@ -67,7 +61,7 @@ const QuestionAnyTopic = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [topic, speechSynthesisInstance]);
+  }, [topic]);
 
   // Fetch AI-generated question
   const fetchAIQuestion = useCallback(async () => {
@@ -111,11 +105,11 @@ const QuestionAnyTopic = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [definition, speechSynthesisInstance]);
+  }, [definition]);
 
   // Validate user answer using AI
-  const checkAnswer = async (userAnswer) => {
-    if (!chatHistory.length) return;
+  const checkAnswer = async () => {
+    if (!chatHistory.length || !answer.trim()) return;
 
     try {
       const res = await fetch(
@@ -129,7 +123,7 @@ const QuestionAnyTopic = () => {
                 role: "user",
                 parts: [
                   {
-                    text: `Evaluate the following: Definition - ${definition}, User's Answer - ${userAnswer}. If the answer is correct or closely related, respond with 'It is correct.' If it is incorrect, say 'It is not correct' and provide the correct answer.`,
+                    text: `Evaluate the following: Definition - ${definition}, User's Answer - ${answer}. If the answer is correct or closely related, respond with 'It is correct.' If it is incorrect, say 'It is not correct' and provide the correct answer.`,
                   },
                 ],
               },
@@ -147,7 +141,7 @@ const QuestionAnyTopic = () => {
 
       setChatHistory((prev) => [
         ...prev,
-        { role: "user", text: userAnswer },
+        { role: "user", text: answer },
         { role: "assistant", text: aiResponse },
       ]);
       speakText(aiResponse);
@@ -222,7 +216,7 @@ const QuestionAnyTopic = () => {
           className="mt-4 w-full p-3 rounded bg-gray-700 text-white focus:ring-2 focus:ring-yellow-500"
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && checkAnswer(answer)}
+          onKeyDown={(e) => e.key === "Enter" && checkAnswer()}
         />
       </Card>
 
