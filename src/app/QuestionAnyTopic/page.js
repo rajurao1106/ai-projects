@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import ai_teacher from "../../images/ai-teacher.jpg"; // Correct Next.js image import
+import ai_teacher from "../../images/ai-teacher.jpg";
 
 const QuestionAnyTopic = () => {
   const [topic, setTopic] = useState("");
@@ -12,21 +12,16 @@ const QuestionAnyTopic = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [definition, setDefinition] = useState("");
+  const [showDefinition, setShowDefinition] = useState(true); // New state variable
   const [answer, setAnswer] = useState("");
-  // const [hide, setHide] = useState(false)
-
-  // const hideText = function () {
-  //   setHide((prev) => !prev)
-  // }
 
   const chatContainerRef = useRef(null);
 
   useEffect(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop =
-        chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  }, [chatHistory]); // Runs when chatHistory updates
+  }, [chatHistory]);
 
   // Text-to-speech function
   const speakText = (text) => {
@@ -69,6 +64,7 @@ const QuestionAnyTopic = () => {
         "Definition not found.";
 
       setDefinition(aiDefinition);
+      setShowDefinition(true); // Show definition when it is fetched
       speakText(aiDefinition);
     } catch (error) {
       setError(`⚠️ ${error.message}`);
@@ -86,6 +82,9 @@ const QuestionAnyTopic = () => {
     setError(null);
     setIsLoading(true);
 
+    // Hide the definition when asking a question
+    setShowDefinition(false);
+
     try {
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_API_KEY}`,
@@ -96,9 +95,7 @@ const QuestionAnyTopic = () => {
             contents: [
               {
                 role: "user",
-                parts: [
-                  { text: `Ask me a basic question about ${definition}.` },
-                ],
+                parts: [{ text: `Ask me a basic question about ${definition}.` }],
               },
             ],
           }),
@@ -162,6 +159,11 @@ const QuestionAnyTopic = () => {
         { role: "assistant", text: aiResponse },
       ]);
       speakText(aiResponse);
+
+      // If the answer is incorrect, show the definition again.
+      if (aiResponse.includes("It is not correct")) {
+        setShowDefinition(true);
+      }
     } catch (error) {
       setError(`⚠️ ${error.message}`);
     }
@@ -199,7 +201,7 @@ const QuestionAnyTopic = () => {
         </Button>
 
         {definition && (
-          <motion.p className={`mt-4 p-3 ${isLoading ? "text-white" : "text-gray-700"} bg-gray-700 rounded`}>
+          <motion.p className={`mt-4 p-3 overflow-auto h-[15rem] ${showDefinition?"text-white":"text-gray-700"} bg-gray-700 rounded`}>
             {definition}
           </motion.p>
         )}
