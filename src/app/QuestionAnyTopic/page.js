@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,20 @@ const QuestionAnyTopic = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [definition, setDefinition] = useState("");
   const [answer, setAnswer] = useState("");
+  // const [hide, setHide] = useState(false)
+
+  // const hideText = function () {
+  //   setHide((prev) => !prev)
+  // }
+
+  const chatContainerRef = useRef(null);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
+    }
+  }, [chatHistory]); // Runs when chatHistory updates
 
   // Text-to-speech function
   const speakText = (text) => {
@@ -98,7 +112,10 @@ const QuestionAnyTopic = () => {
         data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
         "No question available.";
 
-      setChatHistory((prev) => [...prev, { role: "assistant", text: aiQuestion }]);
+      setChatHistory((prev) => [
+        ...prev,
+        { role: "assistant", text: aiQuestion },
+      ]);
       speakText(aiQuestion);
     } catch (error) {
       setError(`⚠️ ${error.message}`);
@@ -152,12 +169,12 @@ const QuestionAnyTopic = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center p-8 text-white bg-blue-950 relative">
-      <Image 
-        src={ai_teacher} 
-        alt="AI Teacher" 
-        layout="fill" 
-        objectFit="cover" 
-        className="absolute z-0 top-0 w-full h-full opacity-30" 
+      <Image
+        src={ai_teacher}
+        alt="AI Teacher"
+        layout="fill"
+        objectFit="cover"
+        className="absolute z-0 top-0 w-full h-full opacity-30"
       />
 
       <motion.h1 className="text-3xl font-bold mb-6 z-10">
@@ -182,21 +199,16 @@ const QuestionAnyTopic = () => {
         </Button>
 
         {definition && (
-          <motion.p className="mt-4 p-3 text-white bg-gray-700 rounded">
+          <motion.p className={`mt-4 p-3 ${isLoading ? "text-white" : "text-gray-700"} bg-gray-700 rounded`}>
             {definition}
           </motion.p>
         )}
 
-        <Button
-          onClick={fetchAIQuestion}
-          disabled={isLoading || !definition}
-          className="mt-4 w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-500"
-        >
-          {isLoading ? "Loading..." : "Ask Questions"}
-        </Button>
-
         {chatHistory.length > 0 && (
-          <div className="mt-6 space-y-2">
+          <div
+            ref={chatContainerRef}
+            className="mt-6 space-y-2 overflow-y-auto h-[10rem] p-2 border border-gray-300 rounded-lg"
+          >
             {chatHistory.map((msg, index) => (
               <motion.p
                 key={index}
@@ -210,6 +222,14 @@ const QuestionAnyTopic = () => {
           </div>
         )}
 
+        <Button
+          onClick={fetchAIQuestion}
+          disabled={isLoading || !definition}
+          className="mt-4 w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-500"
+        >
+          {isLoading ? "Loading..." : "Ask Questions"}
+        </Button>
+
         <input
           type="text"
           placeholder="Write your answer..."
@@ -218,6 +238,12 @@ const QuestionAnyTopic = () => {
           onChange={(e) => setAnswer(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && checkAnswer()}
         />
+        <button
+          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-300"
+          onClick={checkAnswer}
+        >
+          Check Answer
+        </button>
       </Card>
 
       {error && <p className="text-red-500 mt-4 z-10">{error}</p>}
