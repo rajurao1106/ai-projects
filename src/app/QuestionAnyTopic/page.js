@@ -209,7 +209,7 @@ ${pastQuestions}`,
           >
             {isLoading ? "Loading..." : "Get Definition"}
           </Button>
-
+            <p className={`${showDefinition?"block text-white": "hidden"} text-center ${isLoading? "hidden": "block"}`}>Read First Definition</p>
           {definition && (
             <motion.p className={`mt-4 p-3 overflow-auto h-[15rem] ${showDefinition?"text-white":"text-gray-700"} bg-gray-700 rounded`}>
               {definition}
